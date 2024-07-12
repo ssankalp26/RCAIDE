@@ -32,3 +32,4 @@ from .Isolated_Battery_Cell_Network                      import Isolated_Battery
 from .Turbofan_Engine_Network                            import Turbofan_Engine_Network
 from .Turbojet_Engine_Network                            import Turbojet_Engine_Network 
 from .Turboshaft_Engine_Network                          import Turboshaft_Engine_Network 
+from .Turboprop_Engine_Network                           import Turboprop_Engine_Network 
