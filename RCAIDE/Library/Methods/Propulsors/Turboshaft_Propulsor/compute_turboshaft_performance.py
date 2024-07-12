@@ -178,7 +178,17 @@ def compute_performance(conditions,fuel_line,turboshaft,total_power):
     total_power                                                += turboshaft_results.power
     thermal_efficiency                                         = turboshaft.outputs.thermal_efficiency
     PSFC                                                       = turboshaft.outputs.power_specific_fuel_consumption
-  
+    
+
+    # store data
+    core_nozzle_res = Data(
+                exit_static_temperature             = core_nozzle.outputs.static_temperature,
+                exit_static_pressure                = core_nozzle.outputs.static_pressure,
+                exit_stagnation_temperature         = core_nozzle.outputs.stagnation_temperature,
+                exit_stagnation_pressure            = core_nozzle.outputs.static_pressure,
+                exit_velocity                       = core_nozzle.outputs.velocity
+            )  
+    noise_results.turbofan.core_nozzle                        = core_nozzle_res    
     stored_results_flag                                        = True
     stored_propulsor_tag                                       = turboshaft.tag
     
@@ -210,10 +220,8 @@ def reuse_stored_data(conditions,fuel_line,turboshaft,stored_propulsor_tag,total
     turboshaft_results                     = conditions.energy[fuel_line.tag][turboshaft.tag]  
     noise_results                          = conditions.noise[fuel_line.tag][turboshaft.tag]
     turboshaft_results.throttle            = turboshaft_results_0.throttle
-    turboshaft_results.power               = turboshaft_results_0.power   
-    noise_results.turboshaft.fan_nozzle    = None  
-    noise_results.turboshaft.core_nozzle   = noise_results_0.turboshaft.core_nozzle 
-    noise_results.turboshaft.fan           = None   
+    turboshaft_results.power               = turboshaft_results_0.power    
+    noise_results.turboshaft.core_nozzle   = noise_results_0.turboshaft.core_nozzle  
     total_power                            += turboshaft_results.power
     thermal_efficiency                     = turboshaft.outputs.thermal_efficiency
     PSFC                                   = turboshaft.outputs.power_specific_fuel_consumption    
