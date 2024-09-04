@@ -9,4 +9,8 @@
 #  IMPORT
 # ----------------------------------------------------------------------------------------------------------------------
 
+
 from . import Rotor
+from .train_noise_surrogates                    import train_noise_surrogates
+from .build_noise_surrogates                    import build_noise_surrogates  
+from .evaluate_noise import *  

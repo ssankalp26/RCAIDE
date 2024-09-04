@@ -15,7 +15,7 @@ import numpy as np
 #  Relative Noise Evaluatation Locations
 # ----------------------------------------------------------------------------------------------------------------------      
 ## @ingroup Methods-Noise-Common 
-def compute_relative_noise_evaluation_locations(settings,segment):
+def compute_relative_noise_evaluation_locations(settings,state):
     """This computes the relative locations on the surface in the computational domain where the 
     propogated sound is computed. Vectors point from observer/microphone to aircraft/source  
             
@@ -47,7 +47,7 @@ def compute_relative_noise_evaluation_locations(settings,segment):
     N_gm_x            = settings.ground_microphone_x_resolution   
     N_gm_y            = settings.ground_microphone_y_resolution   
     gml               = settings.ground_microphone_locations 
-    pos               = segment.state.conditions.frames.inertial.position_vector 
+    pos               = state.conditions.frames.inertial.position_vector 
     ctrl_pts          = len(pos)  
     AGML              = np.repeat(gml[np.newaxis,:,:],ctrl_pts,axis=0) 
     

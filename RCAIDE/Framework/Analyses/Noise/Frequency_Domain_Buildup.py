@@ -8,11 +8,8 @@
 #  IMPORT
 # ----------------------------------------------------------------------------------------------------------------------  
 # noise imports    
-from RCAIDE.Library.Methods.Noise.Common.decibel_arithmetic                           import SPL_arithmetic
-from RCAIDE.Library.Methods.Noise.Common.generate_microphone_locations                import generate_zero_elevation_microphone_locations, generate_noise_hemisphere_microphone_locations
-from RCAIDE.Library.Methods.Noise.Common.compute_relative_noise_evaluation_locations  import compute_relative_noise_evaluation_locations  
-from RCAIDE.Library.Methods.Noise.Frequency_Domain_Buildup.Rotor.compute_rotor_noise  import compute_rotor_noise 
-from .Noise      import Noise   
+from .Noise      import Noise 
+from RCAIDE.Library.Methods.Noise.Frequency_Domain_Buildup import *   
 
 # package imports
 import numpy as np
@@ -85,6 +82,7 @@ class Frequency_Domain_Buildup(Noise):
         settings.ground_microphone_max_y                = 450  
         
         settings.noise_hemisphere                       = False 
+        settings.use_surrogate                          = True        
         settings.noise_hemisphere_radius                = 20 
         settings.noise_hemisphere_microphone_resolution = 20
         settings.noise_hemisphere_phi_angle_bounds      = np.array([0,np.pi])
@@ -102,69 +100,50 @@ class Frequency_Domain_Buildup(Noise):
         
         return
             
-    def evaluate_noise(self,segment):
-        """ Process vehicle to setup geometry, condititon and configuration
+
+    def initialize(self):  
+        use_surrogate   = self.settings.use_surrogate  
+
+        # If we are using the surrogate
+        if use_surrogate == True: 
+            # sample training data
+            train_noise_surrogates(self)
+
+            # build surrogate
+            build_noise_surrogates(self)  
     
+        # build the evaluation process
+        compute   =  self.process.compute                  
+        if use_surrogate == True: 
+            compute.noise  = evaluate_noise_surrogate
+        else:
+            compute.noise  = evaluate_noise_no_surrogate  
+        return 
+    
+         
+    def evaluate(self,state):
+        """The default evaluate function.
+
         Assumptions:
         None
-    
+
         Source:
-        N/4
-    
+        N/A
+
         Inputs:
-        self.settings.
-            center_frequencies  - 1/3 octave band frequencies   [unitless]
-    
-        Outputs:
         None
-    
+
+        Outputs:
+        results   <RCAIDE data class>
+
         Properties Used:
+        self.settings
         self.geometry
-        """         
-    
-        # unpack 
-        config        = segment.analyses.noise.geometry 
-        settings      = self.settings  
-        conditions    = segment.state.conditions  
-        dim_cf        = len(settings.center_frequencies ) 
-        ctrl_pts      = int(segment.state.numerics.number_of_control_points) 
+        """          
+        settings = self.settings
+        geometry = self.geometry 
+        results  = self.process.compute(state,settings,geometry)
         
-        # generate noise valuation points
-        if settings.noise_hemisphere == True:
-            generate_noise_hemisphere_microphone_locations(settings)     
-            
-        elif type(settings.ground_microphone_locations) is not np.ndarray: 
-            generate_zero_elevation_microphone_locations(settings)     
-        
-        RML,EGML,AGML,num_gm_mic,mic_stencil = compute_relative_noise_evaluation_locations(settings,segment)
-          
-        # append microphone locations to conditions  
-        conditions.noise.ground_microphone_stencil_locations   = mic_stencil        
-        conditions.noise.evaluated_ground_microphone_locations = EGML       
-        conditions.noise.absolute_ground_microphone_locations  = AGML
-        conditions.noise.number_of_ground_microphones          = num_gm_mic 
-        conditions.noise.relative_microphone_locations         = RML 
-        conditions.noise.total_number_of_microphones           = num_gm_mic 
-        
-        # create empty arrays for results      
-        total_SPL_dBA          = np.ones((ctrl_pts,num_gm_mic))*1E-16 
-        total_SPL_spectra      = np.ones((ctrl_pts,num_gm_mic,dim_cf))*1E-16  
-         
-        # iterate through sources and iteratively add rotor noise 
-        for network in config.networks:
-            for tag , item in  network.items():
-                if (tag == 'busses') or (tag == 'fuel_line'): 
-                    for distributor in item: 
-                        for propulsor in distributor.propulsors:
-                            for sub_tag , sub_item in  propulsor.items():
-                                if (sub_tag == 'rotor') or (sub_tag == 'propeller'):  
-                                    compute_rotor_noise(distributor,propulsor,segment,settings) 
-                                    total_SPL_dBA     = SPL_arithmetic(np.concatenate((total_SPL_dBA[:,None,:],conditions.noise[distributor.tag][propulsor.tag][sub_item.tag].SPL_dBA[:,None,:]),axis =1),sum_axis=1)
-                                    total_SPL_spectra = SPL_arithmetic(np.concatenate((total_SPL_spectra[:,None,:,:],conditions.noise[distributor.tag][propulsor.tag][sub_item.tag].SPL_1_3_spectrum[:,None,:,:]),axis =1),sum_axis=1) 
-                             
-        conditions.noise.total_SPL_dBA              = total_SPL_dBA
-        conditions.noise.total_SPL_1_3_spectrum_dBA = total_SPL_spectra
-        
-        return
+        return results 
     
     
