@@ -14,6 +14,7 @@ from RCAIDE.Framework.Analyses                         import Process
 from RCAIDE.Library.Methods.Aerodynamics               import Common
 from .Aerodynamics                                     import Aerodynamics 
 from RCAIDE.Framework.Analyses.Common.Process_Geometry import Process_Geometry 
+from RCAIDE.Framework.Mission.Common                   import Conditions 
 from RCAIDE.Library.Methods.Aerodynamics.Vortex_Lattice_Method import *   
 
 # package imports 
@@ -111,7 +112,7 @@ class Vortex_Lattice_Method(Aerodynamics):
         self.settings.floating_point_precision                      = np.float32 
     
         # conditions table, used for surrogate model training
-        self.training                                               = Data()
+        self.training                                               = Conditions()  
         self.training.angle_of_attack                               = np.array([-5., -2. , 1E-12 , 2.0, 5.0, 8.0, 10.0 , 12., 45., 75.]) * Units.deg 
         self.training.Mach                                          = np.array([1E-12, 0.1  , 0.2 , 0.3,  0.5,  0.75 , 0.85 , 0.9, 1.3, 1.35 , 1.5 , 2.0, 2.25 , 2.5  , 3.0  , 3.5])               
                       
