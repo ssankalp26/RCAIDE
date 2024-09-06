@@ -30,9 +30,9 @@ def build_noise_surrogates(noise):
     Returns: 
         None  
     """
-    surrogates =  noise.surrogates
-    training   =  noise.training 
-    surrogates.noise    =  build_surrogate(noise,training.noise)  
+    surrogates          = noise.surrogates
+    training            = noise.training 
+    surrogates.noise    = build_surrogate(noise,training.noise)  
     return
 
 def build_surrogate(noise, training):
