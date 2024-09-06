@@ -8,8 +8,7 @@
 # RCAIDE imports  
 import RCAIDE 
 from RCAIDE.Framework.Core import  Data , Units 
-from RCAIDE.Framework.Mission.Common                      import Residuals , Conditions 
-from RCAIDE.Library.Methods.Noise.Common.decibel_arithmetic                           import SPL_arithmetic
+from RCAIDE.Framework.Mission.Common                      import  Conditions  
 from RCAIDE.Library.Methods.Noise.Common.generate_microphone_locations                import generate_zero_elevation_microphone_locations, generate_noise_hemisphere_microphone_locations
 from RCAIDE.Library.Methods.Noise.Common.compute_relative_noise_evaluation_locations  import compute_relative_noise_evaluation_locations  
 from RCAIDE.Library.Methods.Noise.Frequency_Domain_Buildup.Rotor.compute_rotor_noise  import compute_rotor_noise 
@@ -40,17 +39,17 @@ def compute_noise(training,distributor,propulsor,rotor,settings):
     Machs = training.AoA        
     AoAs  = training.Mach       
     RPMs  = training.RPM        
-    Betas = training.blade_pitch 
- 
+    Betas = training.blade_pitch
+    
+    dim_cf   = len(settings.center_frequencies )  
     len_Mach = len(Machs)
     len_AoA  = len(AoAs) 
     len_RPM  = len(RPMs)
     len_Beta = len(Betas)
     
     training_SPL_dBA     = np.zeros((len_AoA,len_Mach,len_RPM,len_Beta,1))
-    training_SPL_spectra = np.zeros((len_AoA,len_Mach,len_RPM,len_Beta,))
+    training_SPL_spectra = np.zeros((len_AoA,len_Mach,len_RPM,len_Beta,dim_cf))
     
-                                  
     for Mach_i in range(len_Mach): 
         for RPM_i in range(len_RPM): 
             for Beta_i in range(len_Beta):
@@ -73,8 +72,7 @@ def compute_noise(training,distributor,propulsor,rotor,settings):
                 conditions.energy[rotor.tag].efficiency                    = np.zeros([[0]])
                 conditions.energy[rotor.tag].figure_of_merit               = np.zeros([[0]])
                 conditions.energy[rotor.tag].power_coefficient             = np.zeros([[0]]) 
-                conditions.noise[rotor.tag]                                = Conditions()
-                
+                conditions.noise[rotor.tag]                                = Conditions() 
                 
                 # set mach number
                 conditions.freestream.mach_number[0,:]          = Machs[Mach_i]
@@ -103,7 +101,7 @@ def compute_noise(training,distributor,propulsor,rotor,settings):
                 training_SPL_dBA[:,Mach_i, RPM_i,Beta_i]     = conditions.noise[distributor.tag][propulsor.tag][rotor.tag].SPL_dBA 
                 training_SPL_spectra[:,Mach_i, RPM_i,Beta_i] = conditions.noise[distributor.tag][propulsor.tag][rotor.tag].SPL_1_3_spectrum 
     
-    training[rotor.tag].SPL_dBA     = training_SPL_dBA     
-    training[rotor.tag].SPL_spectra = training_SPL_spectra
+    training.data[rotor.tag].SPL_dBA     = training_SPL_dBA     
+    training.data[rotor.tag].SPL_spectra = training_SPL_spectra
                          
     return

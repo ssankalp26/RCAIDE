@@ -4,8 +4,8 @@
 #  IMPORT
 # ----------------------------------------------------------------------------------------------------------------------
 
-# RCAIDE imports
-from RCAIDE.Framework.Core import  Data 
+# RCAIDE imports 
+from RCAIDE.Framework.Mission.Common  import  Conditions  
 
 # package imports 
 from scipy.interpolate   import RegularGridInterpolator
@@ -38,6 +38,16 @@ def build_noise_surrogates(noise):
 def build_surrogate(noise, training):
     
     # unpack data
+    surrogates = Conditions()
+    Mach_data  = training.AoA        
+    AoA_data   = training.Mach       
+    RPM_data   = training.RPM        
+    Beta_data  = training.blade_pitch 
     
+    for data_set in noise.training.data.items():
+        rotor_tag 
+        surrogates[rotor_tag].SPL_dBA     = RegularGridInterpolator((AoA_data , Mach_data, RPM_data, Beta_data),data_set  ,method = 'linear',   bounds_error=False, fill_value=None) 
+        surrogates[rotor_tag].SPL_spectra = RegularGridInterpolator((AoA_data , Mach_data, RPM_data, Beta_data),data_set  ,method = 'linear',   bounds_error=False, fill_value=None) 
+  
     return surrogates
  

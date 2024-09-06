@@ -1217,7 +1217,7 @@ def evaluate_VLM(conditions,settings,geometry):
     
 
     # Dimensionalize the lift and drag for each wing
-    areas = geometry.vortex_distribution.wing_areas
+    areas          = geometry.vortex_distribution.wing_areas
     dim_wing_lifts = Clift_w  * areas
     dim_wing_drags = Cdrag_w * areas
     

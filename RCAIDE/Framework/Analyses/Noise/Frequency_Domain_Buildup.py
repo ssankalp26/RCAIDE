@@ -84,7 +84,7 @@ class Frequency_Domain_Buildup(Noise):
         settings.ground_microphone_max_y                = 450  
         
         settings.noise_hemisphere                       = False 
-        settings.use_surrogate                          = True        
+        settings.use_surrogate                          = False # True       
         settings.noise_hemisphere_radius                = 20 
         settings.noise_hemisphere_microphone_resolution = 20
         settings.noise_hemisphere_phi_angle_bounds      = np.array([0,np.pi])
@@ -99,13 +99,13 @@ class Frequency_Domain_Buildup(Noise):
                                                                   900,1120,1400,1800,2240,2800,3550,4500,5600,7100,9000 ])
         settings.upper_frequencies                    = np.array([18,22.4,28,35.5,45,56,71,90,112,140,180,224,280,355,450,560,710,900,1120,\
                                                                  1400,1800,2240,2800,3550,4500,5600,7100,9000,11200 ])
-         
-        self.training                                 = Conditions()  
+
+        self.training                                 = Conditions()           
         self.training.AoA                             = np.linspace(0,90,10) * Units.deg 
         self.training.Mach                            = np.array([1E-12, 0.1, 0.2 , 0.3,  0.5,  0.75 , 0.85 , 0.9])      
         self.training.RPM                             = np.linspace(0,3000,11)     
         self.training.blade_pitch                     = np.linspace(0,30,11)
-        
+        self.training.data                            = Conditions()   
 
         self.surrogates                               = Conditions()       
         
