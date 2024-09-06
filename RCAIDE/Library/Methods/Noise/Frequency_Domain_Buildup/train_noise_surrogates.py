@@ -84,9 +84,9 @@ def compute_noise(training,distributor,propulsor,sub_item,settings):
                 conditions.noise.number_of_ground_microphones          = num_gm_mic 
                 conditions.noise.relative_microphone_locations         = RML 
                 conditions.noise.total_number_of_microphones           = num_gm_mic 
-                 
-                 
-                training[rotor.tag].
-                training[rotor.tag].
- 
+
+                compute_rotor_noise(distributor,propulsor,sub_item,settings) 
+                training[sub_item.tag].SPL_dBA     = conditions.noise[distributor.tag][propulsor.tag][sub_item.tag].SPL_dBA 
+                training[sub_item.tag].SPL_spectra = conditions.noise[distributor.tag][propulsor.tag][sub_item.tag].SPL_1_3_spectrum 
+                                 
     return
