@@ -89,10 +89,10 @@ def compute_rotor_noise(distributor,propulsor,rotor,conditions,settings):
     Noise.SPL_total_1_3_spectrum[np.isnan(Noise.SPL_total_1_3_spectrum)] = 0 
 
     # Summation of spectra from propellers into into one SPL and store results
-    Results.SPL                                           = SPL_arithmetic(SPL_arithmetic(Noise.SPL_total_1_3_spectrum)) 
-    Results.SPL_dBA                                       = SPL_arithmetic(SPL_arithmetic(A_weighting_metric(Noise.SPL_total_1_3_spectrum,settings.center_frequencies))) 
-    Results.SPL_harmonic                                  = SPL_arithmetic(SPL_arithmetic(Noise.SPL_prop_harmonic_1_3_spectrum))    
-    Results.SPL_broadband                                 = SPL_arithmetic(SPL_arithmetic(Noise.SPL_prop_broadband_1_3_spectrum)) 
+    Results.SPL                                           = SPL_arithmetic(Noise.SPL_total_1_3_spectrum)
+    Results.SPL_dBA                                       = SPL_arithmetic(A_weighting_metric(Noise.SPL_total_1_3_spectrum,settings.center_frequencies))
+    Results.SPL_harmonic                                  = SPL_arithmetic(Noise.SPL_prop_harmonic_1_3_spectrum) 
+    Results.SPL_broadband                                 = SPL_arithmetic(Noise.SPL_prop_broadband_1_3_spectrum)
     
     # blade passing frequency 
     Results.blade_passing_frequencies                     = Noise.f[:,0,0,:]              
