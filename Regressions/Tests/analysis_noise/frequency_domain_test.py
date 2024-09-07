@@ -125,7 +125,7 @@ def Hararmonic_Noise_Validation(PP):
     conditions.noise.number_of_microphones                 = num_mic
                  
     # Run Frequency Domain Rotor Noise Model          
-    compute_rotor_noise(bus,electric_rotor,segment,settings)
+    compute_rotor_noise(bus,electric_rotor,rotor,segment.state.conditions,settings)
     F8745D4_SPL                                            = conditions.noise[bus.tag][electric_rotor.tag][rotor.tag].SPL     
     F8745D4_SPL_harmonic                                   = conditions.noise[bus.tag][electric_rotor.tag][rotor.tag].SPL_harmonic 
     F8745D4_SPL_broadband                                  = conditions.noise[bus.tag][electric_rotor.tag][rotor.tag].SPL_broadband  
@@ -222,9 +222,9 @@ def Hararmonic_Noise_Validation(PP):
 # ------------------------------------------------------------------     
 def Broadband_Noise_Validation(PP):   
     bus                            = RCAIDE.Library.Components.Energy.Distributors.Electrical_Bus()  
-    electric_rotor                   = RCAIDE.Library.Components.Propulsors.Electric_Rotor() 
+    electric_rotor                 = RCAIDE.Library.Components.Propulsors.Electric_Rotor() 
     rotor                          = APC_11x4_Propeller()  
-    electric_rotor.rotor                = rotor   
+    electric_rotor.rotor           = rotor   
     bus.propulsors.append(electric_rotor)
     
     # Operating Conditions       
@@ -302,7 +302,7 @@ def Broadband_Noise_Validation(PP):
     conditions.noise.number_of_microphones                 = num_mic
                  
     # Run Frequency Domain Rotor Noise Model          
-    compute_rotor_noise(bus,electric_rotor,segment,settings) 
+    compute_rotor_noise(bus,electric_rotor,rotor,segment.state.conditions,settings) 
     
     APC_SF_1_3_Spectrum                                     = conditions.noise[bus.tag][electric_rotor.tag][rotor.tag].SPL_1_3_spectrum 
     APC_SF_SPL_broadband_1_3_spectrum                       = conditions.noise[bus.tag][electric_rotor.tag][rotor.tag].SPL_broadband_1_3_spectrum  

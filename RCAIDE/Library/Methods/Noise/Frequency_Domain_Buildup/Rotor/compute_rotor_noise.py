@@ -81,11 +81,10 @@ def compute_rotor_noise(distributor,propulsor,rotor,conditions,settings):
     broadband_noise(freestream,angle_of_attack,coordinates,velocity_vector,rotor,energy_conditions,settings,Noise)
     
     # Atmospheric attenuation 
-    delta_atmo = atmospheric_attenuation(np.linalg.norm(coordinates.X_r[:,0,0,0,0,:],axis=1),settings.center_frequencies)
+    delta_atmo = atmospheric_attenuation(np.linalg.norm(coordinates.X_r[:,0,0,0,:],axis=1),settings.center_frequencies)
     
     # Combine Harmonic (periodic/tonal) and Broadband Noise
-    num_mic      = len(coordinates.X_hub[0,:,0,0,0,0])
-    num_rot      = len(coordinates.X_hub[0,0,:,0,0,0]) 
+    num_mic      = len(coordinates.X_hub[0,:,0,0,0])
     Noise.SPL_total_1_3_spectrum      = 10*np.log10( 10**(Noise.SPL_prop_harmonic_1_3_spectrum/10) + 10**(Noise.SPL_prop_broadband_1_3_spectrum/10)) - np.tile(delta_atmo[:,None,None,:],(1,num_mic,num_rot,1))
     Noise.SPL_total_1_3_spectrum[np.isnan(Noise.SPL_total_1_3_spectrum)] = 0 
 
