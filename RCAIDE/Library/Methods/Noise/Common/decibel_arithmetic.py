@@ -43,7 +43,7 @@ def pressure_ratio_to_SPL_arithmetic(p_pref_total):
 #  SPL_arithmetic
 # ----------------------------------------------------------------------------------------------------------------------   
 ## @ingroup Methods-Noise-Common
-def SPL_arithmetic(SPL, sum_axis = 2):
+def SPL_arithmetic(SPL, sum_axis = 1):
     '''This computes the total SPL from multiple sources 
     using decibel arithmetic  
     
