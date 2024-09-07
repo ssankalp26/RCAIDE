@@ -112,8 +112,9 @@ def harmonic_noise(harmonics,freestream,angle_of_attack,coordinates,
     # normalized thickness  and loading shape functions                
     k_x               = ((2*m*B*B_D*M_t)/(M_r*(1 - M_x*np.cos(theta_r))))      # wave number 
     psi_V[:,:,0,:]  = 2/3   
-    psi_L[:,:,0,:]  = 1     
-    psi_V[:,:,1:,:] = (8/(k_x[:,:,1:,:]**2))*((2/k_x[:,:,1:,:])*np.sin(0.5*k_x[:,:,1:,:]) - np.cos(0.5*k_x[:,:,1:,:]))    
+    psi_L[:,:,0,:]  = 1
+
+    psi_V[:,:,1:,:] = (8/(k_x[:,:,1:,:]**2))*((2/k_x[:,:,1:,:])*np.sin(0.5*k_x[:,:,1:,:]) - np.cos(0.5*k_x[:,:,1:,:]))  
     psi_L[:,:,1:,:] = (2/k_x[:,:,1:,:])*np.sin(0.5*k_x[:,:,1:,:])                  
 
     # sound pressure for thickness noise   
