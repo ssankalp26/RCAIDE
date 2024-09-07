@@ -103,7 +103,7 @@ def harmonic_noise(harmonics,freestream,angle_of_attack,coordinates,
     # retarted theta angle in the retarded reference frame
     theta_r        = np.tile(coordinates.theta_hub_r[:,:,0,:,None],(1,1,1,1,num_h))  
     theta_r_prime  = np.arccos(np.cos(theta_r)*np.cos(alpha) + np.sin(theta_r)*np.sin(phi)*np.sin(alpha) )
-    S_r            = np.tile(np.linalg.norm(coordinates.X_hub_r[:,:,0,:,:], axis = 4)[:,:,:,:,None],(1,1,1,1,num_h))  
+    S_r            = np.tile(np.linalg.norm(coordinates.X_hub_r[:,:,0,:,:], axis = 3)[:,:,:,None],(1,1,1,num_h))  
 
     # initialize thickness and loading noise matrices
     psi_L          = np.zeros((num_cpt,num_mic,num_sec,num_h))
