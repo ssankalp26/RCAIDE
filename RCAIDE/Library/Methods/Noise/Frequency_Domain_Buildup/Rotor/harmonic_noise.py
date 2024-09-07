@@ -86,7 +86,7 @@ def harmonic_noise(harmonics,freestream,angle_of_attack,coordinates,
     R_tip          = rotor.tip_radius                                                     
     t_c            = np.tile(rotor.thickness_to_chord[None,None,:,None],(num_cpt,num_mic,1,num_h))  # thickness to chord ratio
     MCA            = np.tile(rotor.mid_chord_alignment[None,None,:,None],(num_cpt,num_mic,1,num_h)) # Mid Chord Alighment  
-    phi_0_vec      = np.tile(phi_0[None,None,None,None],(num_cpt,num_mic,num_sec,num_h))
+    phi_0_vec      = np.tile(phi_0[None,None,None],(num_cpt,num_mic,num_sec,num_h))
     res.f          = B*omega*m/(2*np.pi) 
     D              = 2*R[0,0,-1,:]                                                                             # rotor diameter    
     r              = R/R[0,0,-1,:]                                                                             # non dimensional radius distribution   
@@ -101,7 +101,7 @@ def harmonic_noise(harmonics,freestream,angle_of_attack,coordinates,
     phi            = np.tile(coordinates.phi_hub_r[:,:,0,:,None],(1,1,1,num_h)) + phi_0_vec 
 
     # retarted theta angle in the retarded reference frame
-    theta_r        = np.tile(coordinates.theta_hub_r[:,:,0,:,None],(1,1,1,1,num_h))  
+    theta_r        = np.tile(coordinates.theta_hub_r[:,:,0,:,None],(1,1,1,num_h))  
     theta_r_prime  = np.arccos(np.cos(theta_r)*np.cos(alpha) + np.sin(theta_r)*np.sin(phi)*np.sin(alpha) )
     S_r            = np.tile(np.linalg.norm(coordinates.X_hub_r[:,:,0,:,:], axis = 3)[:,:,:,None],(1,1,1,num_h))  
 

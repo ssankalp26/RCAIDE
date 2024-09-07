@@ -81,11 +81,11 @@ def compute_rotor_noise(distributor,propulsor,rotor,conditions,settings):
     broadband_noise(freestream,angle_of_attack,coordinates,velocity_vector,rotor,energy_conditions,settings,Noise)
     
     # Atmospheric attenuation 
-    delta_atmo = atmospheric_attenuation(np.linalg.norm(coordinates.X_r[:,0,0,0,:],axis=1),settings.center_frequencies)
+    delta_atmo = atmospheric_attenuation(np.linalg.norm(coordinates.X_r[:,0,0,:],axis=1),settings.center_frequencies)
     
     # Combine Harmonic (periodic/tonal) and Broadband Noise
-    num_mic      = len(coordinates.X_hub[0,:,0,0,0])
-    Noise.SPL_total_1_3_spectrum      = 10*np.log10( 10**(Noise.SPL_prop_harmonic_1_3_spectrum/10) + 10**(Noise.SPL_prop_broadband_1_3_spectrum/10)) - np.tile(delta_atmo[:,None,None,:],(1,num_mic,num_rot,1))
+    num_mic      = len(coordinates.X_hub[0,:,0,0])
+    Noise.SPL_total_1_3_spectrum      = 10*np.log10( 10**(Noise.SPL_prop_harmonic_1_3_spectrum/10) + 10**(Noise.SPL_prop_broadband_1_3_spectrum/10)) - np.tile(delta_atmo[:,None,:],(1,num_mic,1))
     Noise.SPL_total_1_3_spectrum[np.isnan(Noise.SPL_total_1_3_spectrum)] = 0 
 
     # Summation of spectra from propellers into into one SPL and store results
@@ -95,9 +95,9 @@ def compute_rotor_noise(distributor,propulsor,rotor,conditions,settings):
     Results.SPL_broadband                                 = SPL_arithmetic(SPL_arithmetic(Noise.SPL_prop_broadband_1_3_spectrum)) 
     
     # blade passing frequency 
-    Results.blade_passing_frequencies                     = Noise.f[:,0,0,0,:]              
+    Results.blade_passing_frequencies                     = Noise.f[:,0,0,:]              
     Results.SPL_harmonic_bpf_spectrum                     = SPL_arithmetic(Noise.SPL_prop_harmonic_bpf_spectrum)    
-    Results.SPL_harmonic_bpf_spectrum_dBA                 = A_weighting_metric(Results.SPL_harmonic_bpf_spectrum,Noise.f[0,0,0,0,:]) 
+    Results.SPL_harmonic_bpf_spectrum_dBA                 = A_weighting_metric(Results.SPL_harmonic_bpf_spectrum,Noise.f[0,0,0,:]) 
     
     # 1/3 octave band
     Results.one_third_frequency_spectrum                  = settings.center_frequencies 
