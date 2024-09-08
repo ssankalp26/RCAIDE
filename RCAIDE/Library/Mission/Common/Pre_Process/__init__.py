@@ -13,4 +13,5 @@
 from .aerodynamics               import aerodynamics 
 from .stability                  import stability
 from .energy                     import energy
+from .noise                      import noise
 from .set_residuals_and_unknowns import set_residuals_and_unknowns

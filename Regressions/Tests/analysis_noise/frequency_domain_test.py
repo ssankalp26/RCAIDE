@@ -81,7 +81,7 @@ def Hararmonic_Noise_Validation(PP):
     segment                                                = Segment()  
     conditions                                             = Results() 
     conditions.noise.relative_microphone_locations         = np.repeat(positions[ np.newaxis,:,: ],1,axis=0)  
-    conditions.aerodynamics.angle_of_attack                = np.atleast_2d(AoA).T
+    conditions.aerodynamics.angles.alpha                   = np.atleast_2d(AoA).T
     conditions.freestream.density                          = np.ones((ctrl_pts,1)) * density
     conditions.freestream.dynamic_viscosity                = np.ones((ctrl_pts,1)) * dynamic_viscosity   
     conditions.freestream.speed_of_sound                   = np.ones((ctrl_pts,1)) * a 
