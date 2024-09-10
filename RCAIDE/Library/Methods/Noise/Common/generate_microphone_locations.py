@@ -231,8 +231,11 @@ def generate_noise_hemisphere_microphone_locations(settings):
     gm_mic_locations[:,2] = -z.flatten() 
     
     # store ground microphone locations 
-    settings.ground_microphone_x_resolution = n   
-    settings.ground_microphone_y_resolution = n     
-    settings.ground_microphone_locations    = gm_mic_locations
+    settings.ground_microphone_x_resolution     = n   
+    settings.ground_microphone_y_resolution     = n   
+    settings.ground_microphone_phi_values       = u   
+    settings.ground_microphone_theta_values     = v   
+    settings.ground_microphone_radius           = r     
+    settings.ground_microphone_locations        = gm_mic_locations
     
     return    

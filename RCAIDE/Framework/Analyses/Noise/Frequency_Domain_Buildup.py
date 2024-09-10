@@ -8,7 +8,7 @@
 #  IMPORT
 # ----------------------------------------------------------------------------------------------------------------------  
 # noise imports    
-from RCAIDE.Framework.Core                                 import Units
+from RCAIDE.Framework.Core                                 import Units,  Data 
 from .Noise                                                import Noise 
 from RCAIDE.Framework.Analyses                             import Process 
 from RCAIDE.Framework.Mission.Common                       import Conditions 
@@ -101,21 +101,42 @@ class Frequency_Domain_Buildup(Noise):
         settings.upper_frequencies                    = np.array([18,22.4,28,35.5,45,56,71,90,112,140,180,224,280,355,450,560,710,900,1120,\
                                                                  1400,1800,2240,2800,3550,4500,5600,7100,9000,11200 ])
 
-        self.training                                 = Conditions()           
+        self.training                                                 = Conditions()
+        self.training.settings                                        = Data()
+        self.training.settings.noise_hemisphere                       = True 
+        self.training.settings.use_surrogate                          = True       
+        self.training.settings.noise_hemisphere_radius                = 10 
+        self.training.settings.noise_hemisphere_microphone_resolution = 10
+        self.training.settings.noise_hemisphere_phi_angle_bounds      = np.array([0,np.pi])
+        self.training.settings.noise_hemisphere_theta_angle_bounds    = np.array([0,2*np.pi]) 
+        self.training.settings.harmonics                              = np.arange(1,30) 
+        self.training.settings.center_frequencies                   = np.array([16,20,25,31.5,40, 50, 63, 80, 100, 125, 160, 200, 250, 315, 400, \
+                                                                                500, 630, 800, 1000, 1250, 1600, 2000, 2500, 3150,
+                                                                                4000, 5000, 6300, 8000, 10000])        
+        self.training.settings.lower_frequencies                    = np.array([14,18,22.4,28,35.5,45,56,71,90,112,140,180,224,280,355,450,560,710,\
+                                                                                900,1120,1400,1800,2240,2800,3550,4500,5600,7100,9000 ])
+        self.training.settings.upper_frequencies                    = np.array([18,22.4,28,35.5,45,56,71,90,112,140,180,224,280,355,450,560,710,900,1120,\
+                                                                                1400,1800,2240,2800,3550,4500,5600,7100,9000,11200 ])        
+        
+        
+        
+        
+        
+        
+        
         self.training.AoA                             = np.linspace(0,90,7) * Units.deg 
-        self.training.Mach                            = np.array([1E-12, 0.25 ,0.5 ,0.75])      
-        self.training.RPM                             = np.linspace(0,2500,6)     
+        self.training.Mach                            = np.array([0.25 ,0.5  ])       # np.array([1E-12, 0.25 ,0.5 ,0.75])      
+        self.training.RPM                             = np.linspace(0,2500,2)  # np.linspace(0,2500,6)  
         #self.training.blade_pitch                     = np.linspace(0,30,3)
-        self.training.altitude                        = np.array([50,250,500,1000,5000]) *Units.feet
+        self.training.distance                        = np.array([500,5000]) *Units.feet # np.array([50,250,500,1000,5000]) *Units.feet
         self.training.data                            = Conditions()   
 
-        self.surrogates                               = Conditions()
-        
+        self.surrogates                               = Conditions()  
 
         # build the evaluation process
-        compute                                    = Process()  
-        compute.noise                              = None  
-        self.process.compute                       = compute        
+        self.process                                  = Process()
+        self.process.compute                          = Process()   
+        self.process.compute.noise                    = None  
         
         return
             

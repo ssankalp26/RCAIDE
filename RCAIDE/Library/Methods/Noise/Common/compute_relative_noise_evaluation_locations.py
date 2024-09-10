@@ -41,9 +41,6 @@ def compute_relative_noise_evaluation_locations(settings,conditions):
         N/A       
     """       
  
-    mic_stencil_x     = settings.ground_microphone_x_stencil      
-    mic_stencil_y     = settings.ground_microphone_y_stencil 
-    MSL_altitude      = settings.mean_sea_level_altitude
     N_gm_x            = settings.ground_microphone_x_resolution   
     N_gm_y            = settings.ground_microphone_y_resolution   
     gml               = settings.ground_microphone_locations 
@@ -63,6 +60,9 @@ def compute_relative_noise_evaluation_locations(settings,conditions):
         num_gm_mic       = N_gm_x*N_gm_y
         
     else: 
+        mic_stencil_x     = settings.ground_microphone_x_stencil      
+        mic_stencil_y     = settings.ground_microphone_y_stencil 
+        MSL_altitude      = settings.mean_sea_level_altitude
         if (mic_stencil_x*2 + 1) > N_gm_x:
             print("Resetting microphone stenxil in x direction")
             mic_stencil_x = int(np.floor(N_gm_x/2 - 1))
