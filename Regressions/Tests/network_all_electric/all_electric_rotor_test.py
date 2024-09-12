@@ -131,7 +131,7 @@ def mission_setup(analyses):
     
     # base segment
     base_segment = Segments.Segment()
-    base_segment.state.numerics.number_control_points  = 4       
+    base_segment.state.numerics.number_of_control_points  = 4       
     
     flights_per_day = 1 
     simulated_days  = 1

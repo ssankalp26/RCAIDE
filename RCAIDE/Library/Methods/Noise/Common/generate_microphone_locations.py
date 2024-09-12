@@ -216,8 +216,8 @@ def generate_noise_hemisphere_microphone_locations(settings):
 
     r     = settings.noise_hemisphere_radius                 
     n     = settings.noise_hemisphere_microphone_resolution  
-    phi   = settings.noise_hemisphere_phi_angle_bounds       
-    theta = settings.noise_hemisphere_theta_angle_bounds   
+    phi   = settings.noise_hemisphere_directivity_phi_angle_bounds       
+    theta = settings.noise_hemisphere_directivity_theta_angle_bounds   
     u     = np.linspace(phi[0], phi[1], n)
     v     = np.linspace(theta[0],theta[1], n)   
     x     = r * np.outer(np.cos(u), np.sin(v))
@@ -233,8 +233,8 @@ def generate_noise_hemisphere_microphone_locations(settings):
     # store ground microphone locations 
     settings.ground_microphone_x_resolution     = n   
     settings.ground_microphone_y_resolution     = n   
-    settings.ground_microphone_phi_values       = u   
-    settings.ground_microphone_theta_values     = v   
+    settings.ground_microphone_directivity_phi_angles       = u   
+    settings.ground_microphone_directivity_theta_angles     = v   
     settings.ground_microphone_radius           = r     
     settings.ground_microphone_locations        = gm_mic_locations
     

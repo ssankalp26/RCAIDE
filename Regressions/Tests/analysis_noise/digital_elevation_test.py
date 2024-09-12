@@ -45,7 +45,7 @@ def main():
     plot_elevation_contours(topography_file   ='LA_Metropolitan_Area.txt',use_lat_long_coordinates = False, save_filename = "Elevation_Contours_XY")  
       
     vehicle  = vehicle_setup()      
-    vehicle.networks.electric.busses.bus.identical_propulsors     = False # only for regression     
+    vehicle.networks.electric.busses.bus.identical_propulsors = False # only for regression     
     configs  = configs_setup(vehicle) 
     analyses = analyses_setup(configs,microphone_terrain_data,geospacial_data)  
     mission  = mission_setup(analyses,geospacial_data)
@@ -55,11 +55,11 @@ def main():
     regression_plotting_flag = False
     plot_results(results,regression_plotting_flag)   
 
-    X57_SPL        = np.max(results.segments.climb.conditions.noise.total_SPL_dBA) 
-    X57_SPL_true   = 55.07572946679936
-    X57_diff_SPL   = np.abs(X57_SPL - X57_SPL_true)
-    print('Error: ',X57_diff_SPL)
-    assert np.abs((X57_SPL - X57_SPL_true)/X57_SPL_true) < 1e-3    
+    SPL        = np.max(results.segments.climb.conditions.noise.total_SPL_dBA) 
+    SPL_true   = 55.07572946679936
+    diff_SPL   = np.abs(SPL - SPL_true)
+    print('Error: ',diff_SPL)
+    assert np.abs((SPL - SPL_true)/SPL_true) < 1e-3    
      
     return      
 
@@ -155,7 +155,7 @@ def mission_setup(analyses,geospacial_data):
     mission.tag   = 'mission' 
     Segments      = RCAIDE.Framework.Mission.Segments  
     base_segment  = Segments.Segment()   
-    base_segment.state.numerics.number_control_points  = 5 
+    base_segment.state.numerics.number_of_control_points  = 5 
     
     # ------------------------------------------------------------------
     #   Departure End of Runway Segment Flight 1 : 

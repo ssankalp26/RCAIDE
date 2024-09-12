@@ -186,19 +186,22 @@ class Vortex_Lattice_Method(Aerodynamics):
         use_surrogate   = self.settings.use_surrogate  
 
         # If we are using the surrogate
+        
+        # build the evaluation process
+        compute   =  self.process.compute
+        
         if use_surrogate == True: 
             # sample training data
             train_VLM_surrogates(self)
 
             # build surrogate
-            build_VLM_surrogates(self)  
-    
-        # build the evaluation process
-        compute   =  self.process.compute                  
-        if use_surrogate == True: 
+            build_VLM_surrogates(self)
+
             compute.lift.inviscid_wings  = evaluate_surrogate
+
         else:
-            compute.lift.inviscid_wings  = evaluate_no_surrogate  
+            compute.lift.inviscid_wings  = evaluate_no_surrogate              
+            
         return 
     
          

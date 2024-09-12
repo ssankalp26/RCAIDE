@@ -6,7 +6,8 @@
 
 # ----------------------------------------------------------------------------------------------------------------------
 #  IMPORT
-# ---------------------------------------------------------------------------------------------------------------------- 
+# ----------------------------------------------------------------------------------------------------------------------
+import RCAIDE
 from RCAIDE.Library.Plots.Geometry.plot_3d_fuselage             import plot_3d_fuselage
 from RCAIDE.Library.Plots.Geometry.plot_3d_wing                 import plot_3d_wing 
 from RCAIDE.Library.Plots.Geometry.plot_3d_nacelle              import plot_3d_nacelle
@@ -194,26 +195,22 @@ def plot_3d_energy_network(plot_data,network,number_of_airfoil_points,color_map)
         for bus in network.busses:
             for propulsor in bus.propulsors: 
                 number_of_airfoil_points = 21
-                tessellation             = 24
-                if 'nacelle' in propulsor: 
-                    if propulsor.nacelle !=  None: 
-                        plot_data = plot_3d_nacelle(plot_data,propulsor.nacelle,tessellation,number_of_airfoil_points,color_map = 'darkmint') 
-                if 'rotor' in propulsor: 
-                    plot_data = plot_3d_rotor(propulsor.rotor,save_filename,save_figure,plot_data,show_figure,show_axis,0,number_of_airfoil_points,color_map) 
-                if 'propeller' in propulsor:
-                    plot_data = plot_3d_rotor(propulsor.propeller,save_filename,save_figure,plot_data,show_figure,show_axis,0,number_of_airfoil_points,color_map) 
+                tessellation             = 24 
+                for sub_tag , sub_item in  propulsor.items():
+                    if isinstance(sub_item,RCAIDE.Library.Components.Propulsors.Converters.Rotor): 
+                        plot_data = plot_3d_rotor(sub_item,save_filename,save_figure,plot_data,show_figure,show_axis,0,number_of_airfoil_points,color_map)                         
+                    if isinstance(sub_item,RCAIDE.Library.Components.Nacelles.Nacelle):   
+                        plot_data = plot_3d_nacelle(plot_data,propulsor.nacelle,tessellation,number_of_airfoil_points,color_map = 'darkmint')  
  
     if 'fuel_lines' in network:  
         for fuel_line in network.fuel_lines:
             for propulsor in fuel_line.propulsors: 
                 number_of_airfoil_points = 21
                 tessellation             = 24
-                if 'nacelle' in propulsor:
-                    if propulsor.nacelle !=  None: 
-                        plot_data = plot_3d_nacelle(plot_data,propulsor.nacelle,tessellation,number_of_airfoil_points,color_map = 'darkmint')
-                if 'rotor' in propulsor: 
-                    plot_data = plot_3d_rotor(propulsor.rotor,save_filename,save_figure,plot_data,show_figure,show_axis,0,number_of_airfoil_points,color_map) 
-                if 'propeller' in propulsor:
-                    plot_data = plot_3d_rotor(propulsor.propeller,save_filename,save_figure,plot_data,show_figure,show_axis,0,number_of_airfoil_points,color_map) 
+                for sub_tag , sub_item in  propulsor.items():
+                    if isinstance(sub_item,RCAIDE.Library.Components.Propulsors.Converters.Rotor): 
+                        plot_data = plot_3d_rotor(sub_item,save_filename,save_figure,plot_data,show_figure,show_axis,0,number_of_airfoil_points,color_map)                         
+                    if isinstance(sub_item,RCAIDE.Library.Components.Nacelles.Nacelle):   
+                        plot_data = plot_3d_nacelle(plot_data,propulsor.nacelle,tessellation,number_of_airfoil_points,color_map = 'darkmint')  
  
     return plot_data

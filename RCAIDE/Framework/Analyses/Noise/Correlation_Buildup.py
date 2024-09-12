@@ -85,8 +85,8 @@ class Correlation_Buildup(Noise):
         settings.noise_hemisphere                       = False 
         settings.noise_hemisphere_radius                = 20 
         settings.noise_hemisphere_microphone_resolution = 20
-        settings.noise_hemisphere_phi_angle_bounds      = np.array([0,np.pi])
-        settings.noise_hemisphere_theta_angle_bounds    = np.array([0,2*np.pi])
+        settings.noise_hemisphere_directivity_phi_angle_bounds      = np.array([0,np.pi])
+        settings.noise_hemisphere_directivity_theta_angle_bounds    = np.array([0,2*np.pi])
          
                 
         # settings for acoustic frequency resolution
@@ -136,15 +136,13 @@ class Correlation_Buildup(Noise):
         elif type(settings.ground_microphone_locations) is not np.ndarray: 
             generate_zero_elevation_microphone_locations(settings)     
         
-        RML,EGML,AGML,num_gm_mic,mic_stencil = compute_relative_noise_evaluation_locations(settings,segment)
+        RML,AGML,num_gm_mic,mic_stencil = compute_relative_noise_evaluation_locations(settings,segment)
           
         # append microphone locations to conditions  
-        conditions.noise.ground_microphone_stencil_locations   = mic_stencil        
-        conditions.noise.evaluated_ground_microphone_locations = EGML       
+        conditions.noise.ground_microphone_stencil_locations   = mic_stencil       
         conditions.noise.absolute_ground_microphone_locations  = AGML
         conditions.noise.number_of_ground_microphones          = num_gm_mic 
-        conditions.noise.relative_microphone_locations         = RML 
-        conditions.noise.total_number_of_microphones           = num_gm_mic 
+        conditions.noise.relative_microphone_locations         = RML  
         
         # create empty arrays for results      
         total_SPL_dBA          = np.ones((ctrl_pts,num_gm_mic))*1E-16 
@@ -165,7 +163,6 @@ class Correlation_Buildup(Noise):
                         engine_noise                = turbofan_engine_noise(propulsor,conditions.noise[fuel_line.tag][propulsor.tag].turbofan,segment,settings)    
                         total_SPL_dBA               = SPL_arithmetic(np.concatenate((total_SPL_dBA[:,None,:],engine_noise.SPL_dBA[:,None,:]),axis =1),sum_axis=1)
                         total_SPL_spectra[:,:,5:]   = SPL_arithmetic(np.concatenate((total_SPL_spectra[:,None,:,5:],engine_noise.SPL_1_3_spectrum[:,None,:,:]),axis =1),sum_axis=1)
-                                                     
              
         conditions.noise.total_SPL_dBA              = total_SPL_dBA
         conditions.noise.total_SPL_1_3_spectrum_dBA = total_SPL_spectra

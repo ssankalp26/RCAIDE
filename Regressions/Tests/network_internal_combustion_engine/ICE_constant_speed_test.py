@@ -197,7 +197,7 @@ def mission_setup(analyses):
     # base segment
     base_segment = Segments.Segment()
     ones_row     = base_segment.state.ones_row
-    base_segment.state.numerics.number_control_points    = 3
+    base_segment.state.numerics.number_of_control_points    = 3
 
 
     # ------------------------------------------------------------------    

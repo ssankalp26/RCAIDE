@@ -7,7 +7,7 @@
 # ----------------------------------------------------------------------------------------------------------------------
 #  IMPORT
 # ----------------------------------------------------------------------------------------------------------------------  
-
+import RCAIDE
 from RCAIDE.Framework.Core import Units
 from RCAIDE.Library.Plots.Common import set_axes, plot_style 
 import matplotlib.pyplot as plt
@@ -108,37 +108,34 @@ def plot_rotor_conditions(results,
                  
     return fig 
 
-def plot_propulsor_data(results,distributor,propulsor,axis_1,axis_2,axis_3,axis_4,line_colors,ps,pi):
-    if 'rotor' in  propulsor:
-        rotor = propulsor.rotor
-    elif 'propeller' in  propulsor:
-        rotor = propulsor.propeller
-        
-    for i in range(len(results.segments)): 
-        bus_results  =  results.segments[i].conditions.energy[distributor.tag] 
-        time         =  results.segments[i].conditions.frames.inertial.time[:,0] / Units.min   
-        rpm          =  bus_results[propulsor.tag][rotor.tag].rpm[:,0]
-        thrust       =  bus_results[propulsor.tag][rotor.tag].thrust[:,0]
-        torque       =  bus_results[propulsor.tag][rotor.tag].torque[:,0]
-        angle        =  bus_results[propulsor.tag].commanded_thrust_vector_angle[:,0]  
-        segment_tag  =  results.segments[i].tag
-        segment_name = segment_tag.replace('_', ' ') 
-        if pi == 0: 
-            axis_1.plot(time,rpm, color = line_colors[i], marker = ps.markers[pi]  , linewidth = ps.line_width, label = segment_name)
-        else:
-            axis_1.plot(time,rpm, color = line_colors[i], marker = ps.markers[pi]  , linewidth = ps.line_width)
-        axis_1.set_ylabel(r'RPM')
-        set_axes(axis_1)    
+def plot_propulsor_data(results,distributor,propulsor,axis_1,axis_2,axis_3,axis_4,line_colors,ps,pi): 
+    for sub_tag , sub_item in  propulsor.items():
+        if isinstance(sub_item,RCAIDE.Library.Components.Propulsors.Converters.Rotor):   
+            for i in range(len(results.segments)): 
+                bus_results  =  results.segments[i].conditions.energy[distributor.tag] 
+                time         =  results.segments[i].conditions.frames.inertial.time[:,0] / Units.min   
+                rpm          =  bus_results[propulsor.tag][sub_item.tag].rpm[:,0]
+                thrust       =  bus_results[propulsor.tag][sub_item.tag].thrust[:,0]
+                torque       =  bus_results[propulsor.tag][sub_item.tag].torque[:,0]
+                angle        =  bus_results[propulsor.tag].commanded_thrust_vector_angle[:,0]  
+                segment_tag  =  results.segments[i].tag
+                segment_name = segment_tag.replace('_', ' ') 
+                if pi == 0: 
+                    axis_1.plot(time,rpm, color = line_colors[i], marker = ps.markers[pi]  , linewidth = ps.line_width, label = segment_name)
+                else:
+                    axis_1.plot(time,rpm, color = line_colors[i], marker = ps.markers[pi]  , linewidth = ps.line_width)
+                axis_1.set_ylabel(r'RPM')
+                set_axes(axis_1)    
+                 
+                axis_2.plot(time, angle/Units.degrees, color = line_colors[i], marker = ps.markers[pi]  , linewidth = ps.line_width) 
+                axis_2.set_ylabel(r'Rotor Angle')
+                set_axes(axis_2) 
          
-        axis_2.plot(time, angle/Units.degrees, color = line_colors[i], marker = ps.markers[pi]  , linewidth = ps.line_width) 
-        axis_2.set_ylabel(r'Rotor Angle')
-        set_axes(axis_2) 
- 
-        axis_3.plot(time,thrust, color = line_colors[i], marker = ps.markers[pi] , linewidth = ps.line_width)
-        axis_3.set_ylabel(r'Thrust (N)')
-        set_axes(axis_3) 
-         
-        axis_4.plot(time,torque, color = line_colors[i], marker = ps.markers[pi] , linewidth = ps.line_width)
-        axis_4.set_ylabel(r'Torque (N-m)')
-        set_axes(axis_4)     
+                axis_3.plot(time,thrust, color = line_colors[i], marker = ps.markers[pi] , linewidth = ps.line_width)
+                axis_3.set_ylabel(r'Thrust (N)')
+                set_axes(axis_3) 
+                 
+                axis_4.plot(time,torque, color = line_colors[i], marker = ps.markers[pi] , linewidth = ps.line_width)
+                axis_4.set_ylabel(r'Torque (N-m)')
+                set_axes(axis_4)     
     return 

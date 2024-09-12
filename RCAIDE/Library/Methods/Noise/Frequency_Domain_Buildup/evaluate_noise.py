@@ -4,7 +4,8 @@
 #  IMPORT
 # ----------------------------------------------------------------------------------------------------------------------
 
-# RCAIDE imports  
+# RCAIDE imports
+import RCAIDE
 from RCAIDE.Framework.Core import  Data ,  Units
 from RCAIDE.Library.Methods.Noise.Common.decibel_arithmetic                           import SPL_arithmetic
 from RCAIDE.Library.Methods.Noise.Common.generate_microphone_locations                import generate_zero_elevation_microphone_locations, generate_noise_hemisphere_microphone_locations
@@ -37,36 +38,46 @@ def evaluate_noise_surrogate(state,settings,geometry):
     elif type(settings.ground_microphone_locations) is not np.ndarray: 
         generate_zero_elevation_microphone_locations(settings)     
     
-    RML,EGML,AGML,num_gm_mic,mic_stencil = compute_relative_noise_evaluation_locations(settings,state.conditions)
+    RML,AGML,num_gm_mic,mic_stencil = compute_relative_noise_evaluation_locations(settings,state.conditions)
       
     # append microphone locations to conditions  
-    conditions.noise.ground_microphone_stencil_locations   = mic_stencil        
-    conditions.noise.evaluated_ground_microphone_locations = EGML       
+    conditions.noise.ground_microphone_stencil_locations   = mic_stencil      
     conditions.noise.absolute_ground_microphone_locations  = AGML
     conditions.noise.number_of_ground_microphones          = num_gm_mic 
-    conditions.noise.relative_microphone_locations         = RML 
-    conditions.noise.total_number_of_microphones           = num_gm_mic 
+    conditions.noise.relative_microphone_locations         = RML  
     
     # create empty arrays for results      
     total_SPL_dBA          = np.ones((ctrl_pts,num_gm_mic))*1E-16 
     total_SPL_spectra      = np.ones((ctrl_pts,num_gm_mic,dim_cf))*1E-16  
      
     # iterate through sources and iteratively add rotor noise 
-    for network in geometry.networks: 
+    for network in geometry.networks:
         for bus in network.busses:
+            idx =  0
             for propulsor in  bus.propulsors: 
                 for sub_tag , sub_item in  propulsor.items():
-                    if (sub_tag == 'rotor') or (sub_tag == 'propeller'):
-                        query_noise_surrogate(bus,propulsor,sub_item,state,settings) 
+                    if isinstance(sub_item,RCAIDE.Library.Components.Propulsors.Converters.Rotor):
+                        if bus.identical_propulsors and idx > 0:
+                            pass
+                        else:
+                            rotor_surrogate_tag = sub_item.tag
+                            idx += 1
+                        query_noise_surrogate(bus,propulsor,sub_item,rotor_surrogate_tag,state,settings) 
                         total_SPL_dBA     = SPL_arithmetic(np.concatenate((total_SPL_dBA[:,None,:],conditions.noise[bus.tag][propulsor.tag][sub_item.tag].SPL_dBA[:,None,:]),axis =1),sum_axis=1)
                         total_SPL_spectra = SPL_arithmetic(np.concatenate((total_SPL_spectra[:,None,:,:],conditions.noise[bus.tag][propulsor.tag][sub_item.tag].SPL_1_3_spectrum_dBA[:,None,:,:]),axis =1),sum_axis=1) 
                         
                 
         for fuel_line in network.fuel_lines:
+            idx =  0
             for propulsor in  fuel_line.propulsors: 
                 for sub_tag , sub_item in  propulsor.items():
-                    if (sub_tag == 'rotor') or (sub_tag == 'propeller'): 
-                        query_noise_surrogate(fuel_line,propulsor,sub_item,state,settings) 
+                    if isinstance(sub_item,RCAIDE.Library.Components.Propulsors.Converters.Rotor):
+                        if bus.identical_propulsors and idx > 0:
+                            pass
+                        else:
+                            rotor_surrogate_tag = sub_item.tag 
+                            idx += 1
+                        query_noise_surrogate(fuel_line,propulsor,sub_item,rotor_surrogate_tag,state,settings) 
                         total_SPL_dBA     = SPL_arithmetic(np.concatenate((total_SPL_dBA[:,None,:],conditions.noise[fuel_line.tag][propulsor.tag][sub_item.tag].SPL_dBA[:,None,:]),axis =1),sum_axis=1)
                         total_SPL_spectra = SPL_arithmetic(np.concatenate((total_SPL_spectra[:,None,:,:],conditions.noise[fuel_line.tag][propulsor.tag][sub_item.tag].SPL_1_3_spectrum_dBA[:,None,:,:]),axis =1),sum_axis=1) 
                                                 
@@ -76,7 +87,7 @@ def evaluate_noise_surrogate(state,settings,geometry):
     
     return 
     
-def query_noise_surrogate(distributor,propulsor,rotor,state,settings): 
+def query_noise_surrogate(distributor,propulsor,rotor,rotor_surrogate_tag,state,settings): 
         
     # unpack
     conditions           = state.conditions 
@@ -100,8 +111,8 @@ def query_noise_surrogate(distributor,propulsor,rotor,state,settings):
     # mach 
     Mach                  = conditions.freestream.mach_number
     
-    # RPM
-    RPM                   = state.conditions.energy[distributor.tag][propulsor.tag][rotor.tag].omega / Units.rpm
+    # RPM divided by 1000
+    RPM                   = state.conditions.energy[distributor.tag][propulsor.tag][rotor.tag].omega / Units.rpm /  1000
 
     num_gm_mic =  conditions.noise.number_of_ground_microphones 
     ctrl_pts   = len(conditions.freestream.density)  
@@ -113,21 +124,22 @@ def query_noise_surrogate(distributor,propulsor,rotor,state,settings):
     
         
     for i in range(conditions.noise.number_of_ground_microphones):
-        # Distance 
-        distance              = np.atleast_2d(np.linalg.norm(coordinates.X_hub_r[:,i,0,0,:], axis=1)).T
+        # Distance divided by 1000
+        distance   = np.atleast_2d(np.linalg.norm(coordinates.X_hub_r[:,i,0,0,:], axis=1)).T / 1000
         
         # Phi
-        phi =  np.atleast_2d(coordinates.phi_hub_r[:,i,0,0]).T
+        phi   =  np.atleast_2d(coordinates.phi_hub_r[:,i,0,0]).T
         
         # Theta    
-        theta = np.atleast_2d(coordinates.theta_r[:,i,0,0]).T
+        theta = (np.pi /2 - np.atleast_2d(coordinates.theta_e_r[:,i,0,0]).T ) 
+        theta[theta<0] =  2 * np.pi - theta[theta<0]
         
         # combien points 
-        pts                             = np.hstack((AoA, Mach, RPM, distance,phi,theta))
+        pts   = np.hstack((AoA, Mach, RPM, distance,phi,theta))
         
         # query surrogate
-        SPL_dBA[:,i]              = noise.surrogates[rotor.tag].SPL_dBA(pts) 
-        SPL_1_3_spectrum_dBA[:,i] = noise.surrogates[rotor.tag].SPL_1_3_spectrum_dBA(pts) 
+        SPL_dBA[:,i]              = noise.surrogates[rotor_surrogate_tag].SPL_dBA(pts) 
+        SPL_1_3_spectrum_dBA[:,i] = noise.surrogates[rotor_surrogate_tag].SPL_1_3_spectrum_dBA(pts) 
    
     
     Results.SPL_dBA              = SPL_dBA
@@ -155,15 +167,13 @@ def evaluate_noise_no_surrogate(state,settings,geometry):
     elif type(settings.ground_microphone_locations) is not np.ndarray: 
         generate_zero_elevation_microphone_locations(settings)     
     
-    RML,EGML,AGML,num_gm_mic,mic_stencil = compute_relative_noise_evaluation_locations(settings,state)
+    RML,AGML,num_gm_mic,mic_stencil = compute_relative_noise_evaluation_locations(settings,conditions)
       
     # append microphone locations to conditions  
-    conditions.noise.ground_microphone_stencil_locations   = mic_stencil        
-    conditions.noise.evaluated_ground_microphone_locations = EGML       
+    conditions.noise.ground_microphone_stencil_locations   = mic_stencil         
     conditions.noise.absolute_ground_microphone_locations  = AGML
     conditions.noise.number_of_ground_microphones          = num_gm_mic 
-    conditions.noise.relative_microphone_locations         = RML 
-    conditions.noise.total_number_of_microphones           = num_gm_mic 
+    conditions.noise.relative_microphone_locations         = RML  
     
     # create empty arrays for results      
     total_SPL_dBA          = np.ones((ctrl_pts,num_gm_mic))*1E-16 
@@ -174,7 +184,7 @@ def evaluate_noise_no_surrogate(state,settings,geometry):
         for bus in network.busses:
             for propulsor in  bus.propulsors: 
                 for sub_tag , sub_item in  propulsor.items():
-                    if (sub_tag == 'rotor') or (sub_tag == 'propeller'):
+                    if isinstance(sub_item,RCAIDE.Library.Components.Propulsors.Converters.Rotor):
                         compute_rotor_noise(bus,propulsor,sub_item,conditions,settings) 
                         total_SPL_dBA     = SPL_arithmetic(np.concatenate((total_SPL_dBA[:,None,:],conditions.noise[bus.tag][propulsor.tag][sub_item.tag].SPL_dBA[:,None,:]),axis =1),sum_axis=1)
                         total_SPL_spectra = SPL_arithmetic(np.concatenate((total_SPL_spectra[:,None,:,:],conditions.noise[bus.tag][propulsor.tag][sub_item.tag].SPL_1_3_spectrum[:,None,:,:]),axis =1),sum_axis=1) 
@@ -183,7 +193,7 @@ def evaluate_noise_no_surrogate(state,settings,geometry):
         for fuel_line in network.fuel_lines:
             for propulsor in  fuel_line.propulsors: 
                 for sub_tag , sub_item in  propulsor.items():
-                    if (sub_tag == 'rotor') or (sub_tag == 'propeller'): 
+                    if isinstance(sub_item,RCAIDE.Library.Components.Propulsors.Converters.Rotor):
                         compute_rotor_noise(fuel_line,propulsor,sub_item,conditions,settings) 
                         total_SPL_dBA     = SPL_arithmetic(np.concatenate((total_SPL_dBA[:,None,:],conditions.noise[fuel_line.tag][propulsor.tag][sub_item.tag].SPL_dBA[:,None,:]),axis =1),sum_axis=1)
                         total_SPL_spectra = SPL_arithmetic(np.concatenate((total_SPL_spectra[:,None,:,:],conditions.noise[fuel_line.tag][propulsor.tag][sub_item.tag].SPL_1_3_spectrum[:,None,:,:]),axis =1),sum_axis=1) 

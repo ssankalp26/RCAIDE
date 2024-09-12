@@ -217,7 +217,7 @@ def mission_setup(analyses):
   
     Segments = RCAIDE.Framework.Mission.Segments 
     base_segment = Segments.Segment()
-    base_segment.state.numerics.number_control_points = 4  
+    base_segment.state.numerics.number_of_control_points = 4  
  
     # ------------------------------------------------------------------------------------------------------------------------------------ 
     #   Takeoff Roll
@@ -740,7 +740,7 @@ def mission_setup(analyses):
     segment.air_speed_end                                  = 150 * Units.knots
     segment.throttle                                       = 0
     segment.distance                                       = 10 * Units.km 
-    segment.state.numerics.number_control_points           = 2
+    segment.state.numerics.number_of_control_points           = 2
     segment.state.numerics.max_evaluations                 = 10  
     
     # define flight dynamics to model 

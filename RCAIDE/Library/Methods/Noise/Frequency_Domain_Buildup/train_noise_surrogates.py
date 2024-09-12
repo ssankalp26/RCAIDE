@@ -28,23 +28,24 @@ def train_noise_surrogates(noise):
     """ 
     geometry   = noise.geometry
     training   = noise.training 
-    settings  = training.settings
+    settings   = training.settings
+    new_sim    = True 
     for network in geometry.networks:  
         for bus in network.busses:
             for propulsor in  bus.propulsors: 
                 for sub_tag , sub_item in  propulsor.items():
-                    if (sub_tag == 'rotor') or (sub_tag == 'propeller'):
+                    if isinstance(sub_item,RCAIDE.Library.Components.Propulsors.Converters.Rotor) and new_sim:
                         compute_noise(training,bus,propulsor,sub_item,settings)
                         if bus.identical_propulsors:
-                            break 
+                            new_sim = False 
                 
         for fuel_line in network.fuel_lines:
             for propulsor in  fuel_line.propulsors: 
                 for sub_tag , sub_item in  propulsor.items():
-                    if (sub_tag == 'rotor') or (sub_tag == 'propeller'):
+                    if isinstance(sub_item,RCAIDE.Library.Components.Propulsors.Converters.Rotor) and new_sim:
                         compute_noise(training,fuel_line,propulsor,sub_item,settings)
                         if fuel_line.identical_propulsors:
-                            break    
+                            new_sim = False 
     return  
          
 def compute_noise(training,distributor,propulsor,rotor,settings):
@@ -63,7 +64,7 @@ def compute_noise(training,distributor,propulsor,rotor,settings):
     Machs = training.Mach      
     AoAs  = training.AoA      
     RPMs  = training.RPM         
-    R_s  = training.distance
+    R_s   = training.distance
     
     dim_cf   = len(settings.center_frequencies )  
     len_Mach = len(Machs)
@@ -130,22 +131,22 @@ def compute_noise(training,distributor,propulsor,rotor,settings):
 
                 conditions.aerodynamics.angles.alpha[:,0]              = AoAs
                 rotor_conditions                                       = segment.state.conditions.energy[bus.tag][electric_rotor.tag][rotor.tag]     
-                rotor_conditions.omega[:,0]                            = RPMs[RPM_i] *Units.rpm 
+                rotor_conditions.omega[:,0]                            = RPMs[RPM_i] *Units.rpm
+                
+                # need to use 2d rotor model therefore, turn flag one TO DO
                 compute_rotor_performance(electric_rotor,segment.state,bus)    
                 
                 # generate noise valuation points
                 settings.noise_hemisphere_radius = R_s[r_i]
                 generate_noise_hemisphere_microphone_locations(settings)      
                 
-                RML,EGML,AGML,num_gm_mic,mic_stencil = compute_relative_noise_evaluation_locations(settings,conditions)
+                RML,AGML,num_gm_mic,mic_stencil = compute_relative_noise_evaluation_locations(settings,conditions)
                   
                 # append microphone locations to conditions  
-                conditions.noise.ground_microphone_stencil_locations   = mic_stencil        
-                conditions.noise.evaluated_ground_microphone_locations = EGML       
+                conditions.noise.ground_microphone_stencil_locations   = mic_stencil       
                 conditions.noise.absolute_ground_microphone_locations  = AGML
                 conditions.noise.number_of_ground_microphones          = num_gm_mic 
-                conditions.noise.relative_microphone_locations         = RML 
-                conditions.noise.total_number_of_microphones           = num_gm_mic 
+                conditions.noise.relative_microphone_locations         = RML  
 
                 compute_rotor_noise(bus,electric_rotor,rotor,conditions,settings) 
                 training_SPL_dBA[:,Mach_i,RPM_i,r_i]                 = np.reshape(conditions.noise[bus.tag][electric_rotor.tag][rotor.tag].SPL_dBA,(len_AoA,n,n))

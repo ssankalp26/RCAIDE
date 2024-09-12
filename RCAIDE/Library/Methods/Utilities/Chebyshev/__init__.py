@@ -10,5 +10,5 @@
 # ----------------------------------------------------------------------------------------------------------------------
 # @ingroup Methods-Utilities
 
-from Legacy.trunk.S.Methods.Utilities.Chebyshev.chebyshev_data import chebyshev_data
-from Legacy.trunk.S.Methods.Utilities.Chebyshev.linear_data    import linear_data
+from Legacy.trunk.S.Methods.Utilities.Chebyshev.chebyshev_data import chebyshev_data as chebyshev_data
+from Legacy.trunk.S.Methods.Utilities.Chebyshev.linear_data    import linear_data as linear_data
