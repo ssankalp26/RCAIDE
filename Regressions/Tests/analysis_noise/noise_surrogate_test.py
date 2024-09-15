@@ -51,12 +51,12 @@ def main():
         SPL          = results.segments.cruise.conditions.noise.total_SPL_dBA[0]
         SPL_spectrum = results.segments.cruise.conditions.noise.total_SPL_1_3_spectrum_dBA[0,2,:]
           
-        error_SPL = np.abs((SPL - SPL_true[i])/SPL_true[i])  
+        error_SPL = np.abs((SPL - SPL_true[0])/SPL_true[0])  
         max_SPL_error =  max(error_SPL) 
         print('Max SPL Error: ',max_SPL_error)
         assert max_SPL_error < 1
  
-        error_SPL_spectrum     = np.abs((SPL_spectrum - SPL_spectrum_true[i])/SPL_spectrum_true[i])  
+        error_SPL_spectrum     = np.abs((SPL_spectrum - SPL_spectrum_true[0])/SPL_spectrum_true[0])  
         max_SPL_spectrum_error =  max(error_SPL_spectrum) 
         print('Max SPL Error: ',max_SPL_spectrum_error)
         assert max_SPL_spectrum_error < 1          

@@ -120,11 +120,11 @@ class Frequency_Domain_Buildup(Noise):
    
         
         
-        self.training.AoA                             = np.linspace(0,90,7) * Units.deg 
-        self.training.Mach                            = np.array([1E-12, 0.25 ,0.5 ,0.75])      
-        self.training.RPM                             = np.linspace(0,2500,6)  
+        self.training.AoA                             =  np.linspace(0,90,3) * Units.deg # np.linspace(0,90,7) * Units.deg 
+        self.training.Mach                            = np.array([0.25 ,0.5, 0.75])       #np.array([1E-12, 0.25 ,0.5 ,0.75])      
+        self.training.RPM                             = np.array([1750, 2000, 2500]) # np.linspace(0,2500,6)  
         #self.training.blade_pitch                     = np.linspace(0,30,3)
-        self.training.distance                        = np.array([50,250,500,1000,5000]) *Units.feet
+        self.training.distance                        =np.array([250, 500,1000 ]) *Units.feet # np.array([50,250,500,1000,5000]) *Units.feet
         self.training.data                            = Conditions()   
 
         self.surrogates                               = Conditions()  
