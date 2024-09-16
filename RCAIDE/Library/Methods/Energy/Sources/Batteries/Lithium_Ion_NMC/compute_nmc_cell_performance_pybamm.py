@@ -129,7 +129,7 @@ def compute_nmc_cell_performance_pybamm(battery,state,bus,coolant_lines,t_idx, d
     
     
        sim = pybamm.Simulation(model,parameter_values=parameter_values)
-       sim.solve(t_eval=float(delta_t[t_idx]), initial_soc=float(SOC[t_idx]))
+       sim.solve(t_eval=[float(delta_t[t_idx]), float(delta_t[t_idx+1])], initial_soc=float(SOC[t_idx]))
        solution =  sim.solution
        
        
