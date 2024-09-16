@@ -11,7 +11,7 @@
 import RCAIDE
 from RCAIDE.Framework.Core                                            import Units , Data
 from .Lithium_Ion_Generic                                             import Lithium_Ion_Generic   
-from RCAIDE.Library.Methods.Energy.Sources.Batteries.Lithium_Ion_NMC  import compute_nmc_cell_performance, update_nmc_cell_age
+from RCAIDE.Library.Methods.Energy.Sources.Batteries.Lithium_Ion_NMC  import compute_nmc_cell_performance, update_nmc_cell_age, compute_nmc_cell_performance_pybamm
 
 # package imports 
 import numpy as np
@@ -86,7 +86,7 @@ class Lithium_Ion_NMC(Lithium_Ion_Generic):
          
         return  
     
-    def energy_calc(self,state,bus,coolant_lines, t_idx, delta_t, discharge= True): 
+    def energy_calc(self,state,bus,coolant_lines, t_idx, delta_t, solve_pybamm = False, discharge= True): 
         """Computes the state of the NMC battery cell.
            
         Assumptions:
@@ -103,8 +103,11 @@ class Lithium_Ion_NMC(Lithium_Ion_Generic):
             
         Returns: 
             None
-        """        
-        compute_nmc_cell_performance(self,state,bus,coolant_lines, t_idx,delta_t,discharge) 
+        """
+        if solve_pybamm == True:
+            compute_nmc_cell_performance_pybamm(self,state,bus,coolant_lines, t_idx,delta_t,discharge)
+        else:        
+            compute_nmc_cell_performance(self,state,bus,coolant_lines, t_idx,delta_t,discharge) 
         
         return 
     

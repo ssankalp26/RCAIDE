@@ -161,11 +161,12 @@ class Electric(Network):
         
         time               = state.conditions.frames.inertial.time[:,0] 
         delta_t            = np.diff(time)
+        solve_pybamm       =  True # Change later
         for t_idx in range(state.numerics.number_of_control_points):
             if recharging_flag:
                 for bus in  busses:
                     for battery in  bus.batteries:
-                        battery.energy_calc(state,bus,coolant_lines, t_idx, delta_t, recharging_flag)
+                        battery.energy_calc(state,bus,coolant_lines, t_idx, delta_t, solve_pybamm, recharging_flag)
                         for coolant_line in  coolant_lines:
                             if t_idx != state.numerics.number_of_control_points-1:
                                 for tag, item in  coolant_line.items(): 
@@ -178,7 +179,7 @@ class Electric(Network):
             else:
                 for bus in  busses:
                     for battery in  bus.batteries:
-                        battery.energy_calc(state,bus,coolant_lines, t_idx, delta_t, recharging_flag)
+                        battery.energy_calc(state,bus,coolant_lines, t_idx, delta_t, solve_pybamm, recharging_flag)
                     for coolant_line in  coolant_lines:
                         if t_idx != state.numerics.number_of_control_points-1:
                             for tag, item in  coolant_line.items(): 

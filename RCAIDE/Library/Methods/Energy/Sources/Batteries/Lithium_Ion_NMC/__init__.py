@@ -10,3 +10,4 @@
 # ---------------------------------------------------------------------------------------------------------------------- 
 from .compute_nmc_cell_performance   import compute_nmc_cell_performance
 from .update_nmc_cell_age            import update_nmc_cell_age
+from .compute_nmc_cell_performance_pybamm import  compute_nmc_cell_performance_pybamm
