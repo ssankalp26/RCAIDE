@@ -104,6 +104,7 @@ def compute_nmc_cell_performance_pybamm(battery,state,bus,coolant_lines,t_idx, d
        n_series          = battery.pack.electrical_configuration.series  
        n_parallel        = battery.pack.electrical_configuration.parallel 
        n_total           = battery.pack.electrical_configuration.total
+       I_cell[t_idx]     = I_bat[t_idx]/n_parallel   
        
        # ---------------------------------------------------------------------------------
        # Examine Thermal Management System
@@ -124,7 +125,7 @@ def compute_nmc_cell_performance_pybamm(battery,state,bus,coolant_lines,t_idx, d
        model = pybamm.lithium_ion.DFN(options={"thermal":"lumped"})
        
        parameter_values["Initial temperature [K]"] = float(T_cell[t_idx])
-       parameter_values["Current function [A]"]    = float(I_bat[t_idx]/n_parallel) 
+       parameter_values["Current function [A]"]    = float(I_cell[t_idx]) 
 
     
     
