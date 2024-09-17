@@ -129,14 +129,15 @@ def compute_nmc_cell_performance_pybamm(battery,state,bus,coolant_lines,t_idx, d
     
     
        sim = pybamm.Simulation(model,parameter_values=parameter_values)
-       sim.solve(t_eval=[float(delta_t[t_idx]), float(delta_t[t_idx+1])], initial_soc=float(SOC[t_idx]))
-       solution =  sim.solution
-       
-       
-       
-       
-       T_cell[t_idx+1]       = solution["Volume-averaged cell temperature [C]"].data
-       Q_heat_pack[t_idx+1]  = solution["Total heating [W]"].data * battery.pack.electrical_configuration.total
-       SOC[t_idx+1]          = solution["Discharge capacity [A.h]"].data[-1] / parameter_values["Nominal cell capacity [A.h]"]
+       if t_idx != state.numerics.number_of_control_points-1:  
+              sim.solve(t_eval=[0, float(delta_t[t_idx])], initial_soc=float(SOC[t_idx]))
+              solution =  sim.solution
+              
+              
+              
+              
+              T_cell[t_idx+1]       = solution["Volume-averaged cell temperature [K]"].data[-1]
+              Q_heat_pack[t_idx+1]  = solution["Total heating [W]"].data[-1] * battery.pack.electrical_configuration.total
+              SOC[t_idx+1]          = 1-solution["Discharge capacity [A.h]"].data[-1] / parameter_values["Nominal cell capacity [A.h]"]
     
        return
