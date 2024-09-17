@@ -8,7 +8,7 @@
 from RCAIDE.Framework.Mission.Common  import  Conditions  
 
 # package imports 
-from scipy.interpolate   import RegularGridInterpolator
+from scipy.interpolate   import RegularGridInterpolator, RBFInterpolator
 from scipy               import interpolate
 import  numpy as  np
 
@@ -43,8 +43,14 @@ def build_noise_surrogates(noise):
     
     for rotor_tag, data_set in noise.training.data.items():  
         noise.surrogates[rotor_tag]                      = Conditions()
+        #noise.surrogates[rotor_tag].SPL_dBA              = RBFInterpolator((AoA_data , Mach_data, RPM_data, distance_data,dir_phi_data,dir_theta_data),noise.training.data[rotor_tag].SPL_dBA) #RegularGridInterpolator((AoA_data , Mach_data, RPM_data, distance_data,dir_phi_data,dir_theta_data),noise.training.data[rotor_tag].SPL_dBA  ,method = 'linear',   bounds_error=False, fill_value=None) 
+        #noise.surrogates[rotor_tag].SPL_1_3_spectrum_dBA = RBFInterpolator((AoA_data , Mach_data, RPM_data, distance_data,dir_phi_data,dir_theta_data),noise.training.data[rotor_tag].SPL_1_3_spectrum_dBA) #RegularGridInterpolator((AoA_data , Mach_data, RPM_data, distance_data,dir_phi_data,dir_theta_data),noise.training.data[rotor_tag].SPL_1_3_spectrum_dBA  ,method = 'linear',   bounds_error=False, fill_value=None) 
+        
         noise.surrogates[rotor_tag].SPL_dBA              = RegularGridInterpolator((AoA_data , Mach_data, RPM_data, distance_data,dir_phi_data,dir_theta_data),noise.training.data[rotor_tag].SPL_dBA  ,method = 'linear',   bounds_error=False, fill_value=None) 
         noise.surrogates[rotor_tag].SPL_1_3_spectrum_dBA = RegularGridInterpolator((AoA_data , Mach_data, RPM_data, distance_data,dir_phi_data,dir_theta_data),noise.training.data[rotor_tag].SPL_1_3_spectrum_dBA  ,method = 'linear',   bounds_error=False, fill_value=None) 
+    
+        # noise.surrogates[rotor_tag].SPL_dBA_slin              = RegularGridInterpolator((AoA_data , Mach_data, RPM_data, distance_data,dir_phi_data,dir_theta_data),noise.training.data[rotor_tag].SPL_dBA  ,method = 'slinear',   bounds_error=False, fill_value=None) 
+        # noise.surrogates[rotor_tag].SPL_1_3_spectrum_dBA_slin = RegularGridInterpolator((AoA_data , Mach_data, RPM_data, distance_data,dir_phi_data,dir_theta_data),noise.training.data[rotor_tag].SPL_1_3_spectrum_dBA  ,method = 'slinear',   bounds_error=False, fill_value=None) 
     
         SPL_dBA_sur , SPL_1_3_spectrum_dBA_sur =  test_surrogate(noise,surrogates,rotor_tag)
         
