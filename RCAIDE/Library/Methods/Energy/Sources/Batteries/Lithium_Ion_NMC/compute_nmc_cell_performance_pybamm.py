@@ -122,7 +122,15 @@ def compute_nmc_cell_performance_pybamm(battery,state,bus,coolant_lines,t_idx, d
        # Pybamm Battery Setup
        # ---------------------------------------------------------------------------------                               
        parameter_values = pybamm.ParameterValues("Chen2020")
-       model = pybamm.lithium_ion.DFN(options={"thermal":"lumped"})
+       model = pybamm.lithium_ion.DFN(options={"thermal":"lumped",
+                                               "SEI": "solvent-diffusion limited",
+                                                      "SEI porosity change": "true",
+                                                      "lithium plating": "partially reversible",
+                                                      "lithium plating porosity change": "true",  
+                                                      "particle mechanics": ("swelling and cracking", "swelling only"),
+                                                      "SEI on cracks": "true",
+                                                      "loss of active material": "stress-driven",
+                                                      "calculate discharge energy": "true", })
        
        parameter_values["Initial temperature [K]"] = float(T_cell[t_idx])
        parameter_values["Current function [A]"]    = float(I_cell[t_idx]) 
