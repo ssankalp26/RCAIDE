@@ -138,7 +138,30 @@ def compute_nmc_cell_performance_pybamm(battery,state,bus,coolant_lines,t_idx, d
               
               
               T_cell[t_idx+1]       = solution["Volume-averaged cell temperature [K]"].data[-1]
-              Q_heat_pack[t_idx+1]  = solution["Total heating [W]"].data[-1] * battery.pack.electrical_configuration.total
+              T_pack[t_idx+1]       = solution["Volume-averaged cell temperature [K]"].data[-1]
+              Q_heat_pack[t_idx+1]  = solution["Total heating [W]"].data[-1] * n_total
               SOC[t_idx+1]          = 1-solution["Discharge capacity [A.h]"].data[-1] / parameter_values["Nominal cell capacity [A.h]"]
+              P_cell[t_idx+1]       = solution["Power [W]"].data[-1]
+              P_pack[t_idx+1]       = solution["Power [W]"].data[-1] * n_total
+              Q_cell[t_idx+1]       = solution["Throughput energy [W.h]"].data[-1]
+              E_cell[t_idx+1]       = solution["Discharge energy [W.h]"].data[-1]
+              E_pack[t_idx+1]       = solution["Discharge energy [W.h]"].data[-1]* n_total
+              Q_heat_cell[t_idx+1]  = solution["Total heating [W]"].data[-1]
+              V_oc[t_idx+1]         = solution["Battery open-circuit voltage [V]"].data[-1]
+              V_oc_pack[t_idx+1]    = solution["Battery open-circuit voltage [V]"].data[-1]
+              V_ul[t_idx+1]         = solution["Battery voltage [V]"].data[-1]
+              V_ul_pack[t_idx+1]    = solution["Battery voltage [V]"].data[-1]
+              DOD_cell[t_idx+1]     = solution["Discharge capacity [A.h]"].data[-1] / parameter_values["Nominal cell capacity [A.h]"]
+              electrode_area[t_idx+1]    = parameter_values["Electrode height [m]"] * parameter_values["Electrode width [m]"]
+              I_pack[t_idx+1]       = solution["Current [A]"] * n_total
+              R_0[t_idx+1]          = solution["Resistance [Ohm]"] *n_total 
+              
+              
+              
+              
+              
+              
+              
+              
     
        return
