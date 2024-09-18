@@ -28,10 +28,14 @@ from Electric_Twin_Otter    import vehicle_setup, configs_setup
 def main():           
          
     battery_types = ['lithium_ion_lfp', 'lithium_ion_nmc']
-    btms_types   =  ['Liquid_Cooled_Wavy_Channel', 'Air_Cooled', None]
+    btms_types    = ['Liquid_Cooled_Wavy_Channel', 'Air_Cooled', None]
+    
+    CL_true       = [0.63136618]
+    
+     
     # vehicle data
-    for battery_type in  battery_types:
-        for btms_type in  btms_types:
+    for i , battery_type in enumerate(battery_types):
+        for j , btms_type in enumerate(btms_types):
             vehicle  = vehicle_setup(battery_type, btms_type)
 
             # plot vehicle 
@@ -55,7 +59,11 @@ def main():
             mission  = mission_setup(analyses)
             missions = missions_setup(mission) 
              
-            results = missions.base_mission.evaluate() 
+            results = missions.base_mission.evaluate()
+            
+            CL    = results.segments.cruise.conditions.aerodynamics.coefficients.lift.total[5, 0] 
+            error =  abs(CL - CL_true) /CL_true
+            assert(abs(error)<1e-6)
              
             # plot the results 
             plot_mission(results)
