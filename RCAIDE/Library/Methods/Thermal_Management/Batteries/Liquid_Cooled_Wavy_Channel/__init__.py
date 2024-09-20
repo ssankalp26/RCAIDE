@@ -14,3 +14,5 @@ from .wavy_channel_sizing_setup               import wavy_channel_sizing_setup
 from .wavy_channel_rating_model               import wavy_channel_rating_model
 from .append_wavy_channel_conditions          import append_wavy_channel_conditions
 from .append_wavy_channel_conditions          import append_wavy_channel_segment_conditions
+from. unpack_wavy_channel_unknowns            import unpack_wavy_channel_unknowns
+from. pack_wavy_channel_residuals             import pack_wavy_channel_residuals

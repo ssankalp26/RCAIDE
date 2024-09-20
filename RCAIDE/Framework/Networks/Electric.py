@@ -12,6 +12,7 @@
 import RCAIDE  
 from RCAIDE.Framework.Mission.Common                      import Residuals
 from RCAIDE.Library.Mission.Common.Unpack_Unknowns.energy import bus_unknowns
+from RCAIDE.Library.Mission.Common.Unpack_Unknowns.energy import coolant_line_unknowns
 from .Network                                             import Network              
 from RCAIDE.Library.Methods.Propulsors.Common.compute_avionics_power_draw import compute_avionics_power_draw
 from RCAIDE.Library.Methods.Propulsors.Common.compute_payload_power_draw  import compute_payload_power_draw
@@ -226,8 +227,10 @@ class Electric(Network):
             N/A
         """                          
         # unpack the ones function 
-        busses       = segment.analyses.energy.vehicle.networks.electric.busses
-        bus_unknowns(segment,busses) 
+        busses        = segment.analyses.energy.vehicle.networks.electric.busses
+        coolant_lines = segment.analyses.energy.vehicle.networks.electric.coolant_lines
+        bus_unknowns(segment,busses)
+        coolant_line_unknowns(segment,coolant_lines)
 
         for bus in busses:           
             if type(segment) == RCAIDE.Framework.Mission.Segments.Ground.Battery_Recharge or type(segment) == RCAIDE.Framework.Mission.Segments.Ground.Battery_Discharge:
@@ -236,7 +239,13 @@ class Electric(Network):
                 reference_propulsor = bus.propulsors[list(bus.propulsors.keys())[0]]                 
                 for propulsor in  bus.propulsors: 
                     propulsor.unpack_propulsor_unknowns(reference_propulsor,segment,bus)
-                    
+
+        for coolant_line in  coolant_lines:
+            for battery in  coolant_line.batteries:
+                for btms in  battery:
+                    btms.unpack_heat_acqusition_unknowns(battery,segment,coolant_line)
+                
+                
         return     
 
     def residuals(self,segment):
@@ -261,13 +270,19 @@ class Electric(Network):
            N/A
         """           
 
-        busses   = segment.analyses.energy.vehicle.networks.electric.busses 
+        busses         = segment.analyses.energy.vehicle.networks.electric.busses
+        coolant_lines = segment.analyses.energy.vehicle.networks.electric.coolant_lines
         for bus in busses:             
             if type(segment) == RCAIDE.Framework.Mission.Segments.Ground.Battery_Recharge or type(segment) == RCAIDE.Framework.Mission.Segments.Ground.Battery_Discharge:
                 pass 
             elif bus.active and len(bus.propulsors) > 0:
                 propulsor = bus.propulsors[list(bus.propulsors.keys())[0]]
-                propulsor.pack_propulsor_residuals(segment,bus)  
+                propulsor.pack_propulsor_residuals(segment,bus)
+        for coolant_line in  coolant_lines:
+            if coolant_line.active and  len(coolant_line.batteries) > 0:
+                for battery in  coolant_line.batteries:
+                    for btms in  battery:
+                        btms.pack_heat_acqusition_residuals(battery,segment,coolant_line)
         return     
 
     ## @ingroup Components-Energy-Networks
@@ -333,8 +348,9 @@ class Electric(Network):
             for tag, item in  coolant_line.items(): 
                 if tag == 'batteries':
                     for battery in item:
-                        for btms in  battery:
-                            btms.append_operating_conditions(segment,coolant_line)
+                        for i, btms in  enumerate(battery):
+                            add_additional_network_equation = (coolant_line.active) and  (i == 0)   
+                            btms.append_operating_conditions(segment,coolant_line, add_additional_network_equation)
                 if tag == 'heat_exchangers':
                     for heat_exchanger in  item:
                         heat_exchanger.append_operating_conditions(segment, coolant_line)

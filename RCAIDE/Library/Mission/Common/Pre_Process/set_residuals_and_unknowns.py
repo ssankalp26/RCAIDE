@@ -166,10 +166,23 @@ def set_residuals_and_unknowns(mission):
                     segment.state.unknowns["thrust_vector_" + str(i)] = ones_row(1) * ctrls.thrust_vector_angle.initial_guess_values[i][0]
                 else:
                     segment.state.unknowns["thrust_vector_" + str(i)] = ones_row(1) * 0.0 * Units.degrees 
-                num_ctrls += 1         
-        
+                num_ctrls += 1
+
+        # Thermal Management
+        if ctrls.heat_acqusition_turndown_ratio.active:
+            for i in range(len(ctrls.heat_acqusition_turndown_ratio.assigned_battery)):
+                if ctrls.heat_acqusition_turndown_ratio.inital_guess_values != None:  
+                    segment.state.unknowns['turndown_ratio_'+ str(i)]  =  ctrls.heat_acqusition_turndown_ratio.inital_guess_values[i][0]
+                else:
+                    segment.state.unknowns['turndown_ratio_'+ str(i)]  =  ones_row(1) * 0.5
+                num_ctrls += 1
+
+
         # TO DO: add pitch command
         
-        # TO DO: if the degrees of freedom are greater than the number of control inputs, post problem at optimization   
+        # TO DO: if the degrees of freedom are greater than the number of control inputs, post problem at optimization
+        
+        
+        
     return 
                                                                                                                                                                 

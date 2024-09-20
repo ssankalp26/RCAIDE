@@ -29,7 +29,8 @@ def append_wavy_channel_conditions(wavy_channel,segment,coolant_line,add_additio
                outlet_coolant_temperature                         [Kelvin]
                coolant_mass_flow_rate                             [kg/s]
                effectiveness                                      [None]
-               power                                              [watts]    
+               power                                              [watts]
+               turndown_ratio                                     [None]
                
          Properties Used:
          None
@@ -49,7 +50,12 @@ def append_wavy_channel_conditions(wavy_channel,segment,coolant_line,add_additio
      segment.state.conditions.energy[coolant_line.tag][wavy_channel.tag].coolant_mass_flow_rate     = 0 * ones_row(1)  
      segment.state.conditions.energy[coolant_line.tag][wavy_channel.tag].effectiveness              = 0 * ones_row(1)
      segment.state.conditions.energy[coolant_line.tag][wavy_channel.tag].power                      = 0 * ones_row(1)
+     segment.state.conditions.energy[coolant_line.tag][wavy_channel.tag].turndown_ratio              = 0 * ones_row(1)
      
+     if add_additional_network_equation:                       
+          segment.state.unknowns['turndown_ratio']                    = 0.5 * ones_row(1)  
+          segment.state.residuals.network['turndown_ratio']           = 0. * ones_row(1)
+          
      return
 
 def append_wavy_channel_segment_conditions(wavy_channel,segment,coolant_line,conditions):
@@ -74,9 +80,10 @@ def append_wavy_channel_segment_conditions(wavy_channel,segment,coolant_line,con
 
      wavy_channel_conditions = conditions[coolant_line.tag][wavy_channel.tag]
      if segment.state.initials:  
-          wavy_channel_initials                                    = segment.state.initials.conditions.energy[coolant_line.tag][wavy_channel.tag]
+          wavy_channel_initials                                   = segment.state.initials.conditions.energy[coolant_line.tag][wavy_channel.tag]
           wavy_channel_conditions.outlet_coolant_temperature[:,0] = wavy_channel_initials.outlet_coolant_temperature[-1,0]
           wavy_channel_conditions.power[:,0]                      = wavy_channel_initials.power[-1,0] 
-          wavy_channel_conditions.coolant_mass_flow_rate[:,0]     = wavy_channel_initials.coolant_mass_flow_rate[-1,0]     
+          wavy_channel_conditions.coolant_mass_flow_rate[:,0]     = wavy_channel_initials.coolant_mass_flow_rate[-1,0]
+          wavy_channel_conditions.turndown_ratio[:,0]             = wavy_channel_initials.turndown_ratio[-1,0]     
      
      return

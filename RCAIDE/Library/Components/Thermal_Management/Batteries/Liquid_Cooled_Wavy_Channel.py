@@ -13,7 +13,7 @@ from RCAIDE.Library.Components.Component                                        
 from RCAIDE.Library.Attributes.Materials.Aluminum                                   import Aluminum
 from RCAIDE.Library.Components                                                      import Component
 from RCAIDE.Library.Components.Component                                            import Container
-from RCAIDE.Library.Methods.Thermal_Management.Batteries.Liquid_Cooled_Wavy_Channel import  wavy_channel_rating_model,append_wavy_channel_conditions,append_wavy_channel_segment_conditions 
+from RCAIDE.Library.Methods.Thermal_Management.Batteries.Liquid_Cooled_Wavy_Channel import  *
 from RCAIDE.Library.Plots.Thermal_Management                                        import plot_wavy_channel_conditions
 # ----------------------------------------------------------------------------------------------------------------------
 # Liquid_Cooled_Wavy_Channel_Heat_Acquisition_System
@@ -87,6 +87,14 @@ class Liquid_Cooled_Wavy_Channel(Component):
     def compute_thermal_performance(self,battery,coolant_line, Q_heat_gen,T_cell,state,delta_t,t_idx):
         T_battery_current =  wavy_channel_rating_model(self, battery,coolant_line, Q_heat_gen, T_cell, state, delta_t, t_idx)
         return  T_battery_current
+    
+    def unpack_heat_acqusition_unknowns(self,battery, segment,coolant_line):  
+        unpack_wavy_channel_unknowns(self,battery, segment,coolant_line)
+        return 
+
+    def pack_heat_acqusition_residuals(self,battery,segment,coolant_line): 
+        pack_wavy_channel_residuals(self,battery,segment,coolant_line)
+        return    
     
     def plot_operating_conditions(self, results, coolant_line,save_filename, save_figure,show_legend,file_type , width, height):
         plot_wavy_channel_conditions(self, results, coolant_line,save_filename,save_figure,show_legend,file_type , width, height)
