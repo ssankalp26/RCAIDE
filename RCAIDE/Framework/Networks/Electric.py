@@ -243,8 +243,7 @@ class Electric(Network):
         for coolant_line in  coolant_lines:
             for battery in  coolant_line.batteries:
                 for btms in  battery:
-                    btms.unpack_heat_acqusition_unknowns(battery,segment,coolant_line)
-                
+                    btms.unpack_heat_acqusition_unknowns(battery,segment,coolant_line) 
                 
         return     
 

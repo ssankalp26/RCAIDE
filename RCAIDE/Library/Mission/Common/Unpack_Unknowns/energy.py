@@ -67,16 +67,11 @@ def coolant_line_unknowns(segment, coolant_lines):
     assigned_control_variables = segment.assigned_control_variables
     state                      = segment.state
     if assigned_control_variables.heat_acqusition_turndown_ratio.active:
-        for i in range(len(assigned_control_variables.heat_acqusition_turndown_ratio.assigned_battery)):
-            for coolant_line in  coolant_lines:
-                for battery in  coolant_line.batteries:
+        for i in range(len(assigned_control_variables.heat_acqusition_turndown_ratio.assigned_batteries)):
+            for coolant_line in coolant_lines:
+                for battery in coolant_line.batteries:
                     for btms in battery:
-                        state.conditions.energy[coolant_line.tag][btms.tag].turndown_ratio =  state.unknowns["turndown_ratio" + str(i)]
-                    
-        
-    
-    
-    
+                        state.conditions.energy[coolant_line.tag][btms.tag].turndown_ratio =  state.unknowns["turndown_ratio" + str(i)]  
     return
      
  

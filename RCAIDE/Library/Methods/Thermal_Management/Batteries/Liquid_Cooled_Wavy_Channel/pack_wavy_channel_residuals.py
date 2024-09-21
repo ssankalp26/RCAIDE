@@ -6,15 +6,9 @@
 # ---------------------------------------------------------------------------------------------------------------------- 
 #  pack wavy channel heat acqusistion residuals
 # ----------------------------------------------------------------------------------------------------------------------  
-def pack_wavy_channel_residuals(wavy_channel,battery,segment,coolant_line):
-    
-    coolant_line_results = segment.state.conditions.energy[coolant_line.tag]
-    
-    
-    bus_results   = segment.state.conditions.energy[bus.tag]
-    motor         = propulsor.motor
-    rotor         = propulsor.rotor 
-    q_motor       = bus_results[propulsor.tag][motor.tag].torque
-    q_prop        = bus_results[propulsor.tag][rotor.tag].torque 
-    segment.state.residuals.network[propulsor.tag  + '_rotor_motor_torque'] = q_motor - q_prop 
+def pack_wavy_channel_residuals(bus,wavy_channel,battery,segment,coolant_line): 
+    battery_conditions  = segment.state.conditions.energy[bus.tag][battery.tag] 
+    t_desired           = battery.ideal_operating_temperature
+    t_bat               = battery_conditions.cell.temperature
+    segment.state.residuals.network[wavy_channel.tag  + '_temperature'] = t_bat - t_desired
     return 

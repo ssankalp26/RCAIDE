@@ -170,7 +170,7 @@ def set_residuals_and_unknowns(mission):
 
         # Thermal Management
         if ctrls.heat_acqusition_turndown_ratio.active:
-            for i in range(len(ctrls.heat_acqusition_turndown_ratio.assigned_battery)):
+            for i in range(len(ctrls.heat_acqusition_turndown_ratio.assigned_batteries)):
                 if ctrls.heat_acqusition_turndown_ratio.inital_guess_values != None:  
                     segment.state.unknowns['turndown_ratio_'+ str(i)]  =  ctrls.heat_acqusition_turndown_ratio.inital_guess_values[i][0]
                 else:

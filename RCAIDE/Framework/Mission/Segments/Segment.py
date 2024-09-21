@@ -239,9 +239,13 @@ class Segment(Analysis):
          
         self.assigned_control_variables.heat_acqusition_turndown_ratio                      = Data()
         self.assigned_control_variables.heat_acqusition_turndown_ratio.active               = False
-        self.assigned_control_variables.heat_acqusition_turndown_ratio.assigned_battery     = None 
-        self.assigned_control_variables.heat_acqusition_turndown_ratio.inital_guess_values  = None
-
+        self.assigned_control_variables.heat_acqusition_turndown_ratio.assigned_batteries   = None 
+        self.assigned_control_variables.heat_acqusition_turndown_ratio.inital_guess_values  = None 
+         
+        #self.assigned_control_variables.heat_exchanger_turndown_ratio                       = Data()
+        #self.assigned_control_variables.heat_exchanger_turndown_ratio.active                = False
+        #self.assigned_control_variables.heat_exchanger_turndown_ratio.assigned_batteries    = None 
+        #self.assigned_control_variables.heat_exchanger_turndown_ratio.inital_guess_values   = None 
         
         return     
            

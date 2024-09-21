@@ -30,6 +30,7 @@ class Battery(Component):
         """      
         self.chemistry                                         = None 
         self.assigned_propulsors                               = None
+        self.ideal_operating_temperature                       = 298 # [K]
         self.mass_properties.mass                              = 0.0
         self.energy_density                                    = 0.0
         self.current_energy                                    = 0.0

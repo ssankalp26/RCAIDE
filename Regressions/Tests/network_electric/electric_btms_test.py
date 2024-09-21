@@ -176,7 +176,9 @@ def mission_setup(analyses):
     # define flight controls 
     segment.assigned_control_variables.throttle.active               = True           
     segment.assigned_control_variables.throttle.assigned_propulsors  = [['starboard_propulsor','port_propulsor']] 
-    segment.assigned_control_variables.body_angle.active             = True                  
+    segment.assigned_control_variables.body_angle.active             = True 
+    segment.assigned_control_variables.heat_acqusition_turndown_ratio.active               = True         
+    segment.assigned_control_variables.heat_acqusition_turndown_ratio.assigned_batteries = [['lithium_ion_nmc']]
           
     mission.append_segment(segment)    
 
