@@ -6,7 +6,7 @@
 # ---------------------------------------------------------------------------------------------------------------------- 
 #  pack wavy channel heat acqusistion residuals
 # ----------------------------------------------------------------------------------------------------------------------  
-def pack_wavy_channel_residuals(bus,wavy_channel,battery,segment,coolant_line): 
+def pack_wavy_channel_residuals(wavy_channel,battery,segment,coolant_line): 
     battery_conditions  = segment.state.conditions.energy[bus.tag][battery.tag] 
     t_desired           = battery.ideal_operating_temperature
     t_bat               = battery_conditions.cell.temperature

@@ -277,6 +277,7 @@ class Electric(Network):
             elif bus.active and len(bus.propulsors) > 0:
                 propulsor = bus.propulsors[list(bus.propulsors.keys())[0]]
                 propulsor.pack_propulsor_residuals(segment,bus)
+        
         for coolant_line in  coolant_lines:
             if coolant_line.active and  len(coolant_line.batteries) > 0:
                 for battery in  coolant_line.batteries:

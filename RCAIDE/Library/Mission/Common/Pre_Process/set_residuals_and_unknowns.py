@@ -169,11 +169,11 @@ def set_residuals_and_unknowns(mission):
                 num_ctrls += 1
 
         # Thermal Management
-        if ctrls.heat_acqusition_turndown_ratio.active:
-            for i in range(len(ctrls.heat_acqusition_turndown_ratio.assigned_batteries)):
-                if ctrls.heat_acqusition_turndown_ratio.inital_guess_values != None:  
-                    segment.state.unknowns[coolant_line.tag + '_' + wavy_channel.tag + '_turndown_ratio']  =  ctrls.heat_acqusition_turndown_ratio.inital_guess_values[i][0] 
-                num_ctrls += 1
+        #if ctrls.heat_acqusition_turndown_ratio.active:
+            #for i in range(len(ctrls.heat_acqusition_turndown_ratio.assigned_batteries)):
+                #if ctrls.heat_acqusition_turndown_ratio.inital_guess_values != None:  
+                    #segment.state.unknowns[coolant_line.tag + '_' + wavy_channel.tag + '_turndown_ratio']  =  ctrls.heat_acqusition_turndown_ratio.inital_guess_values[i][0] 
+                #num_ctrls += 1
 
 
         # TO DO: add pitch command
