@@ -27,8 +27,8 @@ from Electric_Twin_Otter    import vehicle_setup, configs_setup
 # ----------------------------------------------------------------------------------------------------------------------  
 def main():           
          
-    battery_types = ['lithium_ion_lfp', 'lithium_ion_nmc']
-    btms_types    = ['Liquid_Cooled_Wavy_Channel', 'Air_Cooled', None]
+    battery_types = ['lithium_ion_nmc'] #, 'lithium_ion_nmc']
+    btms_types    = ['Liquid_Cooled_Wavy_Channel'] #, 'Air_Cooled', None]
     
     CL_true       = [0.63136618]
     

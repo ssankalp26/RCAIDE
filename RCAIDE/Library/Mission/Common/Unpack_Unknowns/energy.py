@@ -71,7 +71,7 @@ def coolant_line_unknowns(segment, coolant_lines):
             for coolant_line in coolant_lines:
                 for battery in coolant_line.batteries:
                     for btms in battery:
-                        state.conditions.energy[coolant_line.tag][btms.tag].turndown_ratio =  state.unknowns["turndown_ratio" + str(i)]  
+                        state.conditions.energy[coolant_line.tag][btms.tag].turndown_ratio =  state.unknowns["turndown_ratio"]  
     return
      
  

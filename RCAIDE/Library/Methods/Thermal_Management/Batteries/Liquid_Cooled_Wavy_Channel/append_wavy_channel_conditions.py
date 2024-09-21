@@ -43,18 +43,18 @@ def append_wavy_channel_conditions(wavy_channel,segment,coolant_line,add_additio
      atmo_data    = atmosphere.compute_values(altitude = alt,temperature_deviation=temp_dev)
      
      
-     ones_row                                                                                        = segment.state.ones_row
+     ones_row                                                                                       = segment.state.ones_row
      segment.state.conditions.energy[coolant_line.tag][wavy_channel.tag]                            = Conditions()
      segment.state.conditions.energy[coolant_line.tag][wavy_channel.tag].heat_removed               = 0 * ones_row(1) 
      segment.state.conditions.energy[coolant_line.tag][wavy_channel.tag].outlet_coolant_temperature = atmo_data.temperature[0,0]  * ones_row(1)     
      segment.state.conditions.energy[coolant_line.tag][wavy_channel.tag].coolant_mass_flow_rate     = 0 * ones_row(1)  
      segment.state.conditions.energy[coolant_line.tag][wavy_channel.tag].effectiveness              = 0 * ones_row(1)
      segment.state.conditions.energy[coolant_line.tag][wavy_channel.tag].power                      = 0 * ones_row(1)
-     segment.state.conditions.energy[coolant_line.tag][wavy_channel.tag].turndown_ratio              = 0 * ones_row(1)
+     segment.state.conditions.energy[coolant_line.tag][wavy_channel.tag].turndown_ratio             = 0 * ones_row(1)
      
      if add_additional_network_equation:                       
-          segment.state.unknowns['turndown_ratio']                    = 0.5 * ones_row(1)  
-          segment.state.residuals.network['turndown_ratio']           = 0. * ones_row(1)
+          segment.state.unknowns[coolant_line.tag + '_' + wavy_channel.tag + '_turndown_ratio']        = 0.5 * ones_row(1)  
+          segment.state.residuals.network[coolant_line.tag + '_' + wavy_channel.tag + '_temperature']  = 0. * ones_row(1)
           
      return
 

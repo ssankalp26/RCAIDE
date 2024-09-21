@@ -10,5 +10,5 @@ def pack_wavy_channel_residuals(bus,wavy_channel,battery,segment,coolant_line):
     battery_conditions  = segment.state.conditions.energy[bus.tag][battery.tag] 
     t_desired           = battery.ideal_operating_temperature
     t_bat               = battery_conditions.cell.temperature
-    segment.state.residuals.network[wavy_channel.tag  + '_temperature'] = t_bat - t_desired
+    segment.state.residuals.network[coolant_line.tag + '_' + wavy_channel.tag +  '_temperature'] = t_bat - t_desired
     return 

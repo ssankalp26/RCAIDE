@@ -172,9 +172,7 @@ def set_residuals_and_unknowns(mission):
         if ctrls.heat_acqusition_turndown_ratio.active:
             for i in range(len(ctrls.heat_acqusition_turndown_ratio.assigned_batteries)):
                 if ctrls.heat_acqusition_turndown_ratio.inital_guess_values != None:  
-                    segment.state.unknowns['turndown_ratio_'+ str(i)]  =  ctrls.heat_acqusition_turndown_ratio.inital_guess_values[i][0]
-                else:
-                    segment.state.unknowns['turndown_ratio_'+ str(i)]  =  ones_row(1) * 0.5
+                    segment.state.unknowns[coolant_line.tag + '_' + wavy_channel.tag + '_turndown_ratio']  =  ctrls.heat_acqusition_turndown_ratio.inital_guess_values[i][0] 
                 num_ctrls += 1
 
 
