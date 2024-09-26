@@ -66,8 +66,8 @@ def plot_aerodynamic_coefficients(results,
     
     for i in range(len(results.segments)): 
         time = results.segments[i].conditions.frames.inertial.time[:,0] / Units.min
-        cl   = results.segments[i].conditions.aerodynamics.coefficients.lift[:,0,None]
-        cd   = results.segments[i].conditions.aerodynamics.coefficients.drag[:,0,None]
+        cl   = results.segments[i].conditions.aerodynamics.coefficients.lift.total[:,0,None]
+        cd   = results.segments[i].conditions.aerodynamics.coefficients.drag.total[:,0,None]
         aoa  = results.segments[i].conditions.aerodynamics.angles.alpha[:,0] / Units.deg
         l_d  = cl/cd    
                        
@@ -75,7 +75,7 @@ def plot_aerodynamic_coefficients(results,
         segment_name = segment_tag.replace('_', ' ')
         axis_1.plot(time, aoa, color = line_colors[i], marker = ps.markers[0], linewidth = ps.line_width, label = segment_name)
         axis_1.set_ylabel(r'AoA (deg)')
-        axis_1.set_ylim([-5,20])
+        axis_1.set_ylim([-5,15])
         set_axes(axis_1)    
         
         axis_2.plot(time, l_d, color = line_colors[i], marker = ps.markers[0], linewidth = ps.line_width) 
@@ -90,7 +90,7 @@ def plot_aerodynamic_coefficients(results,
         axis_4.plot(time, cd, color = line_colors[i], marker = ps.markers[0], linewidth = ps.line_width)
         axis_4.set_xlabel('Time (mins)')
         axis_4.set_ylabel(r'$C_D$')
-        axis_4.set_ylim([0,0.5])
+        axis_4.set_ylim([0,0.1])
         set_axes(axis_4) 
         
     if show_legend:

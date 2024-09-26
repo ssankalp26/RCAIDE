@@ -62,8 +62,7 @@ class Evaluate(Segment):
         
         # conditions
         self.temperature_deviation                = 0.0
-        self.sideslip_angle                       = 0.0
-        self.reverse_thrust_ratio                 = 0.0
+        self.sideslip_angle                       = 0.0 
         self.state.conditions.update(Results())
         
         # ---------------------------------------------------------------
@@ -127,6 +126,7 @@ class Evaluate(Segment):
         post_process.inertial_position  = Common.Update.inertial_horizontal_position
         post_process.battery_age        = Common.Update.battery_age  
         post_process.noise              = Common.Update.noise
+        post_process.emissions          = Common.Update.emissions
         
         return
 
