@@ -45,10 +45,10 @@ def main():
     # mission analysis 
     results = missions.base_mission.evaluate()   
     
-    P_truth     = 53595.133552791885
-    mdot_truth  = 0.004708991132231039
+    P_truth     = 54521.82437744922
+    mdot_truth  = 0.004790412309609632
     
-    P    = results.segments.cruise.state.conditions.energy.fuel_line.ice_constant_speed_propeller.engine.power[-1,0]
+    P    = results.segments.cruise.state.conditions.energy.fuel_line.ice_constant_speed_propeller.internal_combustion_engine.power[-1,0]
     mdot = results.segments.cruise.state.conditions.weights.vehicle_mass_rate[-1,0]     
 
     # Check the errors
@@ -69,20 +69,20 @@ def main():
 def ICE_CS(vehicle):
     
     # Replace the C172 engine and propeller with a constant speed propeller  
-    vehicle.networks.pop('internal_combustion_engine')
+    vehicle.networks.pop('fuel')
 
     # ########################################################  Energy Network  #########################################################  
-    net                                         = RCAIDE.Framework.Networks.Constant_Speed_Internal_Combustion_Engine_Network()  
+    net                                         = RCAIDE.Framework.Networks.Fuel()  
 
     #------------------------------------------------------------------------------------------------------------------------------------  
     # Bus
     #------------------------------------------------------------------------------------------------------------------------------------  
-    fuel_line                                   = RCAIDE.Library.Components.Energy.Distribution.Fuel_Line() 
+    fuel_line                                   = RCAIDE.Library.Components.Energy.Distributors.Fuel_Line() 
     
     #------------------------------------------------------------------------------------------------------------------------------------  
     # uel Tank and Fuel
     #------------------------------------------------------------------------------------------------------------------------------------   
-    fuel_tank                                   = RCAIDE.Library.Components.Energy.Fuel_Tanks.Fuel_Tank()
+    fuel_tank                                   = RCAIDE.Library.Components.Energy.Sources.Fuel_Tanks.Fuel_Tank()
     fuel_tank.origin                            = vehicle.wings.main_wing.origin  
     fuel                                        = RCAIDE.Library.Attributes.Propellants.Aviation_Gasoline() 
     fuel.mass_properties.mass                   = 319 *Units.lbs 
@@ -128,7 +128,7 @@ def ICE_CS(vehicle):
                                            '../../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_1000000.txt' ] 
     prop.append_airfoil(airfoil)  
     prop.airfoil_polar_stations            = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
-    prop                                   = design_propeller(prop)   
+    design_propeller(prop)   
     propulsor.propeller                    = prop
     
     fuel_line.propulsors.append(propulsor)
@@ -217,10 +217,10 @@ def mission_setup(analyses):
     segment.flight_dynamics.force_z                       = True     
     
     # define flight controls 
-    segment.flight_controls.throttle.active               = True           
-    segment.flight_controls.throttle.assigned_propulsors  = [['ice_constant_speed_propeller']] 
-    segment.flight_controls.body_angle                   
-    segment.flight_controls.body_angle.active             = True                
+    segment.assigned_control_variables.throttle.active               = True           
+    segment.assigned_control_variables.throttle.assigned_propulsors  = [['ice_constant_speed_propeller']] 
+    segment.assigned_control_variables.body_angle                   
+    segment.assigned_control_variables.body_angle.active             = True                
                 
     mission.append_segment(segment)
 
@@ -244,7 +244,7 @@ def base_analysis(vehicle):
 
     # ------------------------------------------------------------------
     #  Aerodynamics Analysis
-    aerodynamics = RCAIDE.Framework.Analyses.Aerodynamics.Subsonic_VLM() 
+    aerodynamics = RCAIDE.Framework.Analyses.Aerodynamics.Vortex_Lattice_Method() 
     aerodynamics.geometry                            = vehicle
     aerodynamics.settings.drag_coefficient_increment = 0.0000
     analyses.append(aerodynamics)
@@ -252,7 +252,7 @@ def base_analysis(vehicle):
     # ------------------------------------------------------------------
     #  Energy
     energy= RCAIDE.Framework.Analyses.Energy.Energy()
-    energy.networks = vehicle.networks 
+    energy.vehicle  = vehicle 
     analyses.append(energy)
 
     # ------------------------------------------------------------------

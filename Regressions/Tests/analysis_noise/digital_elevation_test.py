@@ -45,7 +45,7 @@ def main():
     plot_elevation_contours(topography_file   ='LA_Metropolitan_Area.txt',use_lat_long_coordinates = False, save_filename = "Elevation_Contours_XY")  
       
     vehicle  = vehicle_setup()      
-    vehicle.networks.all_electric.busses.bus.identical_propulsors     = False # only for regression     
+    vehicle.networks.electric.busses.bus.identical_propulsors     = False # only for regression     
     configs  = configs_setup(vehicle) 
     analyses = analyses_setup(configs,microphone_terrain_data,geospacial_data)  
     mission  = mission_setup(analyses,geospacial_data)
@@ -56,7 +56,7 @@ def main():
     plot_results(results,regression_plotting_flag)   
 
     X57_SPL        = np.max(results.segments.climb.conditions.noise.total_SPL_dBA) 
-    X57_SPL_true   = 56.65697143910036
+    X57_SPL_true   = 55.07572946679936
     X57_diff_SPL   = np.abs(X57_SPL - X57_SPL_true)
     print('Error: ',X57_diff_SPL)
     assert np.abs((X57_SPL - X57_SPL_true)/X57_SPL_true) < 1e-3    
@@ -93,7 +93,7 @@ def base_analysis(vehicle,microphone_terrain_data,geospacial_data):
 
     # ------------------------------------------------------------------
     #  Aerodynamics Analysis
-    aerodynamics          = RCAIDE.Framework.Analyses.Aerodynamics.Subsonic_VLM() 
+    aerodynamics          = RCAIDE.Framework.Analyses.Aerodynamics.Vortex_Lattice_Method() 
     aerodynamics.geometry = vehicle
     aerodynamics.settings.drag_coefficient_increment = 0.0000
     analyses.append(aerodynamics)   
@@ -126,7 +126,7 @@ def base_analysis(vehicle,microphone_terrain_data,geospacial_data):
     # ------------------------------------------------------------------
     #  Energy
     energy          = RCAIDE.Framework.Analyses.Energy.Energy()
-    energy.networks = vehicle.networks 
+    energy.vehicle  = vehicle 
     analyses.append(energy)
 
     # ------------------------------------------------------------------
@@ -170,16 +170,16 @@ def mission_setup(analyses,geospacial_data):
     segment.air_speed_start                              = 100.    * Units['mph'] 
     segment.air_speed_end                                = 120.    * Units['mph'] 
     segment.climb_rate                                   = 50.     * Units['ft/min']         
-    segment.true_course_angle                            = geospacial_data.true_course_angle
+    segment.true_course                                  = geospacial_data.true_course 
     
     # define flight dynamics to model 
     segment.flight_dynamics.force_x                      = True  
     segment.flight_dynamics.force_z                      = True     
     
     # define flight controls 
-    segment.flight_controls.throttle.active               = True           
-    segment.flight_controls.throttle.assigned_propulsors  = [['starboard_propulsor','port_propulsor']] 
-    segment.flight_controls.body_angle.active             = True                
+    segment.assigned_control_variables.throttle.active               = True           
+    segment.assigned_control_variables.throttle.assigned_propulsors  = [['starboard_propulsor','port_propulsor']] 
+    segment.assigned_control_variables.body_angle.active             = True                
        
     mission.append_segment(segment)  
      
