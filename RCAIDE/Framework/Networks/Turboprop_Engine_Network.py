@@ -1,21 +1,21 @@
 ## @ingroup Networks
 # RCAIDE/Energy/Networks/Turboprop_Engine_Network.py
+# 
 #
-# Created:  Oct 2023, M. Clarke
-# Modified: Jun 2024, M. Guidotti 
+# Created:  Oct 2024, M. Guidotti
 
 # ----------------------------------------------------------------------------------------------------------------------
 #  Imports
-# ----------------------------------------------------------------------------------------------------------------------
+# ---------------------------------------------------------------------------------------------------------------------
 # RCAIDE Imports  
 import RCAIDE 
-from RCAIDE.Framework.Core                                                                        import Data 
-from RCAIDE.Framework.Mission.Common                                                              import Residuals    
-from RCAIDE.Library.Methods.Propulsors.Turboshaft_Propulsor.compute_turboprop_performance         import compute_turboprop_performance
-from .Network                                                                                     import Network  
-                                                                                              
+from RCAIDE.Framework.Core                                                               import Data 
+from RCAIDE.Framework.Mission.Common                                                     import Residuals    
+from RCAIDE.Library.Methods.Propulsors.Turboprop_Propulsor.compute_turboprop_performance import compute_turboprop_performance
+from .Network                                                                            import Network  
+
 # ----------------------------------------------------------------------------------------------------------------------
-#  Turboshaft
+#  Turboprop
 # ---------------------------------------------------------------------------------------------------------------------- 
 ## @ingroup Energy-Networks
 class Turboprop_Engine_Network(Network):
@@ -26,8 +26,7 @@ class Turboprop_Engine_Network(Network):
         
         Source:
         Most of the componentes come from this book:
-        https://soaneemrana.org/onewebmedia/ELEMENTS%20OF%20GAS%20TURBINE%20PROPULTION2.pdf
-        
+        https://web.stanford.edu/~cantwell/AA283_Course_Material/AA283_Course_Notes/
     """      
     
     def __defaults__(self):
@@ -53,8 +52,8 @@ class Turboprop_Engine_Network(Network):
         self.system_voltage               = None   
         
     # linking the different network components
-    def evaluate_power(self,state):
-        """ Calculate power given the current state of the vehicle
+    def evaluate_thrust(self,state):
+        """ Calculate thrust given the current state of the vehicle
     
             Assumptions:
             None
@@ -66,18 +65,26 @@ class Turboprop_Engine_Network(Network):
             state [state()]
     
             Outputs:
-            results.power               [Watt]
+            results.thrust_force_vector [newtons]
             results.vehicle_mass_rate   [kg/s]
             conditions.noise.sources.turboprop:
-                exit_static_temperature      
-                exit_static_pressure       
-                exit_stagnation_temperature 
-                exit_stagnation_pressure
-                exit_velocity  
+                core:
+                    exit_static_temperature      
+                    exit_static_pressure       
+                    exit_stagnation_temperature 
+                    exit_stagnation_pressure
+                    exit_velocity 
+                fan:
+                    exit_static_temperature      
+                    exit_static_pressure       
+                    exit_stagnation_temperature 
+                    exit_stagnation_pressure
+                    exit_velocity 
     
             Properties Used:
             Defaulted values
         """           
+
         # Step 1: Unpack
         conditions  = state.conditions  
         fuel_lines  = self.fuel_lines 
@@ -95,13 +102,13 @@ class Turboprop_Engine_Network(Network):
                 total_thrust += fuel_line_T   
                 total_power  += fuel_line_P  
                 
-                # Step 2.2: Link each turbojet the its respective fuel tank(s)
+                # Step 2.2: Link each turboprop the its respective fuel tank(s)
                 for fuel_tank in fuel_line.fuel_tanks:
                     mdot = 0. * state.ones_row(1)   
-                    for turbojet in fuel_line.propulsors:
-                        for source in (turbojet.active_fuel_tanks):
+                    for turboprop in fuel_line.propulsors:
+                        for source in (turboprop.active_fuel_tanks):
                             if fuel_tank.tag == source: 
-                                mdot += conditions.energy[fuel_line.tag][turbojet.tag].fuel_flow_rate 
+                                mdot += conditions.energy[fuel_line.tag][turboprop.tag].fuel_flow_rate 
                         
                     # Step 2.3 : Determine cumulative fuel flow from fuel tank 
                     fuel_tank_mdot = fuel_tank.fuel_selector_ratio*mdot + fuel_tank.secondary_fuel_flow 
@@ -121,6 +128,7 @@ class Turboprop_Engine_Network(Network):
         results.power                     = total_power
         results.vehicle_mass_rate         = total_mdot     
         # -------------------------------------------------- 
+        
         return results 
      
     
@@ -145,8 +153,8 @@ class Turboprop_Engine_Network(Network):
         
         #Unpack components
         conditions = state.conditions
-        power     = self.power
-        power.size(conditions) 
+        thrust     = self.thrust
+        thrust.size(conditions) 
     
     def unpack_unknowns(self,segment):
         """Unpacks the unknowns set in the mission to be available for the mission.
@@ -218,15 +226,15 @@ class Turboprop_Engine_Network(Network):
             # Assign network-specific  residuals, unknowns and results data structures
             # ------------------------------------------------------------------------------------------------------
             for turboprop in fuel_line.propulsors:               
-                fuel_line_results[turboprop.tag]                  = RCAIDE.Framework.Mission.Common.Conditions() 
-                fuel_line_results[turboprop.tag].throttle         = 0. * ones_row(1)    
-                fuel_line_results[turboprop.tag].y_axis_rotation  = 0. * ones_row(1)    
-                fuel_line_results[turboprop.tag].power            = 0. * ones_row(1) 
-                fuel_line_results[turboprop.tag].thrust           = 0. * ones_row(1) 
-                noise_results[turboprop.tag]                      = RCAIDE.Framework.Mission.Common.Conditions() 
-                noise_results[turboprop.tag].turboprop            = RCAIDE.Framework.Mission.Common.Conditions() 
-                                                                 
-        segment.process.iterate.unknowns.network                   = self.unpack_unknowns                   
+                fuel_line_results[turboprop.tag]                         = RCAIDE.Framework.Mission.Common.Conditions() 
+                fuel_line_results[turboprop.tag].throttle                = 0. * ones_row(1)    
+                fuel_line_results[turboprop.tag].y_axis_rotation         = 0. * ones_row(1)   # NEED TO REMOVE
+                fuel_line_results[turboprop.tag].thrust                  = 0. * ones_row(1) 
+                fuel_line_results[turboprop.tag].power                   = 0. * ones_row(1) 
+                noise_results[turboprop.tag]                             = RCAIDE.Framework.Mission.Common.Conditions() 
+                noise_results[turboprop.tag].turboprop                    = RCAIDE.Framework.Mission.Common.Conditions() 
+        
+        segment.process.iterate.unknowns.network                  = self.unpack_unknowns                   
         return segment    
         
-    __call__ = evaluate_power
+    __call__ = evaluate_thrust

@@ -1,69 +1,71 @@
-## @ingroup Methods-Energy-Propulsors-Turboshaft_Propulsor
-# RCAIDE/Methods/Energy/Propulsors/Turboshaft_Propulsor/size_core.py
+## @ingroup Methods-Energy-Propulsors-Turbojet_Propulsor
+# RCAIDE/Methods/Energy/Propulsors/Turbojet_Propulsor/size_core.py
 # 
 # 
 # Created:  Jul 2023, M. Clarke
-# Modified: Jun 2024, M. Guidotti
 
 # ----------------------------------------------------------------------------------------------------------------------
 #  IMPORT
 # ---------------------------------------------------------------------------------------------------------------------- 
-from RCAIDE.Library.Methods.Propulsors.Turboshaft_Propulsor import compute_power
+from RCAIDE.Library.Methods.Propulsors.Turbojet_Propulsor import compute_thrust
 
 # Python package imports
-import numpy                                                       as np
+import numpy as np
 
 # ----------------------------------------------------------------------------------------------------------------------
 #  size_core
 # ----------------------------------------------------------------------------------------------------------------------
-## @ingroup Methods-Energy-Propulsors-Turboshaft_Propulsor 
-def size_core(turboprop,conditions):
+## @ingroup Methods-Energy-Propulsors-Turbojet_Propulsor 
+def size_core(turbojet,conditions):
     """Sizes the core flow for the design condition.
 
     Assumptions:
     Perfect gas
-    Turboshaft engine with free power turbine
 
-    Sources:
-    [1] https://soaneemrana.org/onewebmedia/ELEMENTS%20OF%20GAS%20TURBINE%20PROPULTION2.pdf - Page 332 - 336
-    [2] https://www.colorado.edu/faculty/kantha/sites/default/files/attached-files/70652-116619_-_luke_stuyvenberg_-_dec_17_2015_1258_pm_-_stuyvenberg_helicopterturboprops.pdf
+    Source:
+    https://web.stanford.edu/~cantwell/AA283_Course_Material/AA283_Course_Notes/
 
     Inputs:
-    conditions.freestream.speed_of_sound [m/s] (conditions is also passed to turboprop.compute(..))
-    turboprop.inputs.
-      bypass_ratio                            [-]
-      total_temperature_reference             [K]
-      total_pressure_reference                [Pa]
-      number_of_engines                       [-]
+    conditions.freestream.speed_of_sound [m/s] (conditions is also passed to turbojet.compute(..))
+    turbojet.inputs.
+      bypass_ratio                       [-]
+      total_temperature_reference        [K]
+      total_pressure_reference           [Pa]
+      number_of_engines                  [-]
 
     Outputs:
-    turboprop.outputs.non_dimensional_power  [-]
+    turbojet.outputs.non_dimensional_thrust  [-]
 
     Properties Used:
-    turboprop.
-      reference_temperature                   [K]
-      reference_pressure                      [Pa]
-      total_design                            [W] - Design power
+    turbojet.
+      reference_temperature              [K]
+      reference_pressure                 [Pa]
+      total_design                       [N] - Design thrust
     """             
-    
-    #unpack from turboprop
-    Tref                                           = turboprop.reference_temperature
-    Pref                                           = turboprop.reference_pressure 
-    total_temperature_reference                    = turboprop.inputs.total_temperature_reference  
-    total_pressure_reference                       = turboprop.inputs.total_pressure_reference 
+    #unpack inputs
+    a0                   = conditions.freestream.speed_of_sound
+    throttle             = 1.0
 
-    #compute nondimensional power
-    compute_power(turboprop,conditions)
+    #unpack from turbojet
+    bypass_ratio                = turbojet.inputs.bypass_ratio
+    Tref                        = turbojet.reference_temperature
+    Pref                        = turbojet.reference_pressure 
+
+    total_temperature_reference = turbojet.inputs.total_temperature_reference  # low pressure turbine output for turbofan
+    total_pressure_reference    = turbojet.inputs.total_pressure_reference 
+
+    #compute nondimensional thrust
+    compute_thrust(turbojet,conditions)
 
     #unpack results 
-    Psp                                            = turboprop.outputs.non_dimensional_power
-    
+    Fsp                         = turbojet.outputs.non_dimensional_thrust
+
     #compute dimensional mass flow rates
-    mdot_air                                       = turboprop.design_power/Psp
-    mdot_compressor                                = mdot_air/ (np.sqrt(Tref/total_temperature_reference)*(total_pressure_reference/Pref))
+    mdot_core                   = turbojet.design_thrust/(Fsp*a0*(1+bypass_ratio)*throttle)  
+    mdhc                        = mdot_core/ (np.sqrt(Tref/total_temperature_reference)*(total_pressure_reference/Pref))
 
     #pack outputs
-    turboprop.mass_flow_rate_design               = mdot_air
-    turboprop.compressor.mass_flow_rate           = mdot_compressor
+    turbojet.mass_flow_rate_design               = mdot_core
+    turbojet.compressor_nondimensional_massflow  = mdhc
 
     return    

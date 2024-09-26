@@ -18,4 +18,5 @@ from .ICE_Propeller                              import ICE_Propeller
 from .Turbofan                                   import Turbofan
 from .Turbojet                                   import Turbojet
 from .Turboshaft                                 import Turboshaft
+from .Turboprop                                  import Turboprop
 from .Constant_Speed_ICE_Propeller               import Constant_Speed_ICE_Propeller
