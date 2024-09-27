@@ -1,234 +1,232 @@
-## @ingroup Methods-Energy-Propulsors-Networks-Turbojet_Propulsor
-# RCAIDE/Methods/Energy/Propulsors/Networks/Turbojet_Propulsor/compute_turbojet_performance.py
+## @ingroup Methods-Energy-Propulsors-Turboprop_Propulsor
+# RCAIDE/Methods/Energy/Propulsors/Turboprop_Propulsor/compute_turboprop_performance.py
 # 
 # 
-# Created:  Jul 2023, M. Clarke
+# Created:  Jul 2024, RCAIDE Team
 
 # ----------------------------------------------------------------------------------------------------------------------
 #  IMPORT
 # ----------------------------------------------------------------------------------------------------------------------
 # RCAIDE imports  
-from RCAIDE.Framework.Core import Data    
+from RCAIDE.Framework.Core import Data   
 from RCAIDE.Library.Methods.Propulsors.Converters.Ram                import compute_ram_performance
 from RCAIDE.Library.Methods.Propulsors.Converters.Combustor          import compute_combustor_performance
-from RCAIDE.Library.Methods.Propulsors.Converters.Compressor         import compute_compressor_performance
+from RCAIDE.Library.Methods.Propulsors.Converters.Compressor         import compute_compressor_performance 
+from RCAIDE.Library.Methods.Propulsors.Converters.Propeller          import compute_propeller_performance
 from RCAIDE.Library.Methods.Propulsors.Converters.Turbine            import compute_turbine_performance
 from RCAIDE.Library.Methods.Propulsors.Converters.Expansion_Nozzle   import compute_expansion_nozzle_performance 
 from RCAIDE.Library.Methods.Propulsors.Converters.Compression_Nozzle import compute_compression_nozzle_performance
-from RCAIDE.Library.Methods.Propulsors.Turbojet_Propulsor            import compute_thrust
+from RCAIDE.Library.Methods.Propulsors.Turboprop_Propulsor            import compute_thrust
+
+import  numpy as  np
+from copy import  deepcopy
 
 # ----------------------------------------------------------------------------------------------------------------------
-# compute_turbojet_performance
+# compute_performance
 # ---------------------------------------------------------------------------------------------------------------------- 
-## @ingroup Methods-Energy-Propulsors-Turbojet_Propulsor
-def compute_turbojet_performance(fuel_line,state):   
-    ''' Computes the performance of all turbojet engines connected to a fuel tank
+## @ingroup Methods-Energy-Propulsors-Turboprop_Propulsor  
+def compute_turboprop_performance(turboprop,state,fuel_line,center_of_gravity= [[0.0, 0.0,0.0]]):  
+    ''' Computes the perfomrance of one turboprop
     
     Assumptions: 
     N/A
 
     Source:
     N/A
-
-    Inputs:   
-    fuel_line            - data structure containing turbofans on distrubution network  [-]  
-    assigned_propulsors  - list of propulsors that are powered by energy source         [-]
-    state                - operating data structure                                     [-] 
-                     
-    Outputs:                      
-    outputs              - turbojet operating outputs                                   [-]
-    total_thrust         - thrust of turbojets                                          [N]
-    total_power          - power of turbojets                                           [W]
     
-    Properties Used: 
-    N.A.        
-    '''  
-    total_power     = 0*state.ones_row(1) 
-    total_thrust    = 0*state.ones_row(3) 
-    conditions      = state.conditions
-    stored_results_flag = False 
-    
-    for turbojet in fuel_line.propulsors:  
-        if turbojet.active == True:  
-            if fuel_line.identical_propulsors == False:
-                # run analysis  
-                total_thrust,total_power ,stored_results_flag,stored_propulsor_tag = compute_performance(conditions,fuel_line,turbojet,total_thrust,total_power)
-            else:             
-                if stored_results_flag == False: 
-                    # run analysis 
-                    total_thrust,total_power ,stored_results_flag,stored_propulsor_tag = compute_performance(conditions,fuel_line,turbojet,total_thrust,total_power)
-                else:
-                    # use old results 
-                    total_thrust,total_power  = reuse_stored_data(conditions,fuel_line,turbojet,stored_propulsor_tag,total_thrust,total_power)
-                
-    return total_thrust,total_power
-
-def compute_performance(conditions,fuel_line,turbojet,total_thrust,total_power):  
-    ''' Computes the perfomrance of one turbojet
-    
-    Assumptions: 
-    N/A
-
-    Source:
-    N/A
-
     Inputs:  
-    conditions           - operating conditions data structure   [-]  
-    fuel_line            - fuelline                              [-] 
-    turbojet             - turbojet data structure               [-] 
-    total_thrust         - thrust of turbojet group              [N]
-    total_power          - power of turbojet group               [W] 
+    turboprop             - turboprop data structure               [-]  
+    state                - operating conditions data structure   [-]  
+    fuel_line            - fuelline                              [-]
+    center_of_gravity    - aircraft center of gravity            [m]
 
     Outputs:  
-    total_thrust         - thrust of turbojet group              [N]
-    total_power          - power of turbojet group               [W] 
+    total_thrust         - thrust of turboprop group              [N]
+    total_momnet         - moment of turboprop group              [Nm]
+    total_power          - power of turboprop group               [W] 
     stored_results_flag  - boolean for stored results            [-]     
     stored_propulsor_tag - name of turbojet with stored results  [-]
     
     Properties Used: 
     N.A.        
     ''' 
-    noise_results             = conditions.noise[fuel_line.tag][turbojet.tag]  
-    turbojet_results          = conditions.energy[fuel_line.tag][turbojet.tag]  
-    ram                       = turbojet.ram
-    inlet_nozzle              = turbojet.inlet_nozzle
-    low_pressure_compressor   = turbojet.low_pressure_compressor
-    high_pressure_compressor  = turbojet.high_pressure_compressor
-    combustor                 = turbojet.combustor
-    high_pressure_turbine     = turbojet.high_pressure_turbine
-    low_pressure_turbine      = turbojet.low_pressure_turbine 
-    afterburner               = turbojet.afterburner 
-    core_nozzle               = turbojet.core_nozzle  
+    conditions                = state.conditions   
+    noise_conditions          = conditions.noise[fuel_line.tag][turboprop.tag] 
+    turboprop_conditions       = conditions.energy[fuel_line.tag][turboprop.tag] 
+    ram                       = turboprop.ram
+    propeller                 = turboprop.propeller
+    compressor                = turboprop.compressor
+    combustor                 = turboprop.combustor
+    high_pressure_turbine     = turboprop.high_pressure_turbine
+    low_pressure_turbine      = turboprop.low_pressure_turbine
+    core_nozzle               = turboprop.core_nozzle  
+    
+    # unpack component conditions 
+    turboprop_conditions      = conditions.energy[fuel_line.tag][turboprop.tag]
+    ram_conditions            = turboprop_conditions[ram.tag]    
+    propeller_conditions      = turboprop_conditions[propeller.tag]
+    core_nozzle_conditions    = turboprop_conditions[core_nozzle.tag]
+    c_conditions              = turboprop_conditions[compressor.tag]
+    lpt_conditions            = turboprop_conditions[low_pressure_turbine.tag]
+    hpt_conditions            = turboprop_conditions[high_pressure_turbine.tag]
+    combustor_conditions      = turboprop_conditions[combustor.tag] 
+    
+    # Set the working fluid to determine the fluid properties
+    ram.working_fluid = turboprop.working_fluid
 
-    #set the working fluid to determine the fluid properties
-    ram.inputs.working_fluid                               = turbojet.working_fluid
+    # Flow through the ram , this computes the necessary flow quantities and stores it into conditions
+    compute_ram_performance(ram,ram_conditions,conditions)
 
-    #Flow through the ram , this computes the necessary flow quantities and stores it into conditions
-    compute_ram_performance(ram,conditions)
+    # Link inlet nozzle to ram 
+    inlet_nozzle_conditions.inputs.stagnation_temperature             = ram_conditions.outputs.stagnation_temperature 
+    inlet_nozzle_conditions.inputs.stagnation_pressure                = ram_conditions.outputs.stagnation_pressure
 
-    #link inlet nozzle to ram 
-    inlet_nozzle.inputs.stagnation_temperature             = ram.outputs.stagnation_temperature 
-    inlet_nozzle.inputs.stagnation_pressure                = ram.outputs.stagnation_pressure
+    # Flow through the inlet nozzle
+    compute_compression_nozzle_performance(inlet_nozzle,inlet_nozzle_conditions,conditions)
 
-    #Flow through the inlet nozzle
-    compute_compression_nozzle_performance(inlet_nozzle,conditions)
+    # Link low pressure compressor to the inlet nozzle
+    lpc_conditions.inputs.stagnation_temperature  = inlet_nozzle_conditions.outputs.stagnation_temperature
+    lpc_conditions.inputs.stagnation_pressure     = inlet_nozzle_conditions.outputs.stagnation_pressure
 
-    #--link low pressure compressor to the inlet nozzle
-    low_pressure_compressor.inputs.stagnation_temperature  = inlet_nozzle.outputs.stagnation_temperature
-    low_pressure_compressor.inputs.stagnation_pressure     = inlet_nozzle.outputs.stagnation_pressure
+    # Flow through the low pressure compressor
+    compute_compressor_performance(low_pressure_compressor,lpc_conditions,conditions)
 
-    #Flow through the low pressure compressor
-    compute_compressor_performance(low_pressure_compressor,conditions)
+    # Link the high pressure compressor to the low pressure compressor
+    hpc_conditions.inputs.stagnation_temperature = lpc_conditions.outputs.stagnation_temperature
+    hpc_conditions.inputs.stagnation_pressure    = lpc_conditions.outputs.stagnation_pressure
 
-    #link the high pressure compressor to the low pressure compressor
-    high_pressure_compressor.inputs.stagnation_temperature = low_pressure_compressor.outputs.stagnation_temperature
-    high_pressure_compressor.inputs.stagnation_pressure    = low_pressure_compressor.outputs.stagnation_pressure
+    # Flow through the high pressure compressor
+    compute_compressor_performance(high_pressure_compressor,hpc_conditions,conditions)
 
-    #Flow through the high pressure compressor
-    compute_compressor_performance(high_pressure_compressor,conditions)
+    # Link the combustor to the high pressure compressor
+    combustor_conditions.inputs.stagnation_temperature                = hpc_conditions.outputs.stagnation_temperature
+    combustor_conditions.inputs.stagnation_pressure                   = hpc_conditions.outputs.stagnation_pressure
 
-    #link the combustor to the high pressure compressor
-    combustor.inputs.stagnation_temperature                = high_pressure_compressor.outputs.stagnation_temperature
-    combustor.inputs.stagnation_pressure                   = high_pressure_compressor.outputs.stagnation_pressure
+    # Flow through the high pressor comprresor
+    compute_combustor_performance(combustor,combustor_conditions,conditions)
 
-    #flow through the high pressor comprresor
-    compute_combustor_performance(combustor,conditions)
+    # Link the shaft power output to the low pressure compressor
+    try:
+        shaft_power = turboprop.Shaft_Power_Off_Take       
+        shaft_power.inputs.mdhc                            = turboprop.compressor_nondimensional_massflow
+        shaft_power.inputs.Tref                            = turboprop.reference_temperature
+        shaft_power.inputs.Pref                            = turboprop.reference_pressure
+        shaft_power.inputs.total_temperature_reference     = lpc_conditions.outputs.stagnation_temperature
+        shaft_power.inputs.total_pressure_reference        = lpc_conditions.outputs.stagnation_pressure
 
-    #link the high pressure turbine to the combustor
-    high_pressure_turbine.inputs.stagnation_temperature    = combustor.outputs.stagnation_temperature
-    high_pressure_turbine.inputs.stagnation_pressure       = combustor.outputs.stagnation_pressure
-    high_pressure_turbine.inputs.fuel_to_air_ratio         = combustor.outputs.fuel_to_air_ratio
+        shaft_power(conditions)
+        lpt_conditions.inputs.shaft_power_off_take   = shaft_power.outputs
+    except:
+        pass
 
-    #link the high pressuer turbine to the high pressure compressor
-    high_pressure_turbine.inputs.compressor                = high_pressure_compressor.outputs
+    # Link the high pressure turbine to the combustor
+    hpt_conditions.inputs.stagnation_temperature    = combustor_conditions.outputs.stagnation_temperature
+    hpt_conditions.inputs.stagnation_pressure       = combustor_conditions.outputs.stagnation_pressure
+    hpt_conditions.inputs.fuel_to_air_ratio         = combustor_conditions.outputs.fuel_to_air_ratio
 
-    #flow through the high pressure turbine
-    compute_turbine_performance(high_pressure_turbine,conditions)
+    # Link the high pressuer turbine to the high pressure compressor
+    hpt_conditions.inputs.compressor                = hpc_conditions.outputs
 
-    #link the low pressure turbine to the high pressure turbine
-    low_pressure_turbine.inputs.stagnation_temperature     = high_pressure_turbine.outputs.stagnation_temperature
-    low_pressure_turbine.inputs.stagnation_pressure        = high_pressure_turbine.outputs.stagnation_pressure
+    # Link the high pressure turbine to the fan
+    hpt_conditions.inputs.fan                       = fan_conditions.outputs
+    hpt_conditions.inputs.bypass_ratio              = 0.0 #set to zero to ensure that fan not linked here 
 
-    #link the low pressure turbine to the low_pressure_compresor
-    low_pressure_turbine.inputs.compressor                 = low_pressure_compressor.outputs
+    # Flow through the high pressure turbine
+    compute_turbine_performance(high_pressure_turbine,hpt_conditions,conditions)
 
-    #link the low pressure turbine to the combustor
-    low_pressure_turbine.inputs.fuel_to_air_ratio          = combustor.outputs.fuel_to_air_ratio
+    # Link the low pressure turbine to the high pressure turbine
+    lpt_conditions.inputs.stagnation_temperature     = hpt_conditions.outputs.stagnation_temperature
+    lpt_conditions.inputs.stagnation_pressure        = hpt_conditions.outputs.stagnation_pressure
 
-    #get the bypass ratio from the thrust component
-    low_pressure_turbine.inputs.bypass_ratio               = 0.0
+    # Link the low pressure turbine to the low_pressure_compresor
+    lpt_conditions.inputs.compressor                 = lpc_conditions.outputs
 
-    #flow through the low pressure turbine
-    compute_turbine_performance(low_pressure_turbine,conditions)
+    # Link the low pressure turbine to the combustor
+    lpt_conditions.inputs.fuel_to_air_ratio          = combustor_conditions.outputs.fuel_to_air_ratio
 
-    if turbojet.afterburner_active == True:
-        #link the core nozzle to the afterburner
-        afterburner.inputs.stagnation_temperature              = low_pressure_turbine.outputs.stagnation_temperature
-        afterburner.inputs.stagnation_pressure                 = low_pressure_turbine.outputs.stagnation_pressure   
-        afterburner.inputs.nondim_ratio                        = 1.0 + combustor.outputs.fuel_to_air_ratio
+    # Link the low pressure turbine to the fan
+    lpt_conditions.inputs.fan                        = fan_conditions.outputs 
 
-        #flow through the afterburner
-        compute_combustor_performance(afterburner,conditions)  
+    # Get the bypass ratio from the thrust component
+    lpt_conditions.inputs.bypass_ratio               = bypass_ratio
 
-        #link the core nozzle to the afterburner
-        core_nozzle.inputs.stagnation_temperature              = afterburner.outputs.stagnation_temperature
-        core_nozzle.inputs.stagnation_pressure                 = afterburner.outputs.stagnation_pressure   
+    # Flow through the low pressure turbine
+    compute_turbine_performance(low_pressure_turbine,lpt_conditions,conditions)
 
-    else:
-        #link the core nozzle to the low pressure turbine
-        core_nozzle.inputs.stagnation_temperature              = low_pressure_turbine.outputs.stagnation_temperature
-        core_nozzle.inputs.stagnation_pressure                 = low_pressure_turbine.outputs.stagnation_pressure
+    # Link the core nozzle to the low pressure turbine
+    core_nozzle_conditions.inputs.stagnation_temperature              = lpt_conditions.outputs.stagnation_temperature
+    core_nozzle_conditions.inputs.stagnation_pressure                 = lpt_conditions.outputs.stagnation_pressure
 
-    #flow through the core nozzle
-    compute_expansion_nozzle_performance(core_nozzle,conditions)
+    # Flow through the core nozzle
+    compute_expansion_nozzle_performance(core_nozzle,core_nozzle_conditions,conditions)
 
-    # compute the thrust using the thrust component
-    #link the thrust component to the core nozzle
-    turbojet.inputs.core_exit_velocity                       = core_nozzle.outputs.velocity
-    turbojet.inputs.core_area_ratio                          = core_nozzle.outputs.area_ratio
-    turbojet.inputs.core_nozzle                              = core_nozzle.outputs
+    # Link the dan nozzle to the fan
+    fan_nozzle_conditions.inputs.stagnation_temperature               = fan_conditions.outputs.stagnation_temperature
+    fan_nozzle_conditions.inputs.stagnation_pressure                  = fan_conditions.outputs.stagnation_pressure
 
-    #link the thrust component to the combustor
-    turbojet.inputs.fuel_to_air_ratio                        = combustor.outputs.fuel_to_air_ratio 
-    if turbojet.afterburner_active == True:
-        # previous fuel ratio is neglected when the afterburner fuel ratio is calculated
-        turbojet.inputs.fuel_to_air_ratio += afterburner.outputs.fuel_to_air_ratio
+    # Flow through the fan nozzle
+    compute_expansion_nozzle_performance(fan_nozzle,fan_nozzle_conditions,conditions)
+ 
+    # Link the thrust component to the fan nozzle
+    turboprop_conditions.fan_nozzle_exit_velocity                        = fan_nozzle_conditions.outputs.velocity
+    turboprop_conditions.fan_nozzle_area_ratio                           = fan_nozzle_conditions.outputs.area_ratio  
+    turboprop_conditions.fan_nozzle_static_pressure                      = fan_nozzle_conditions.outputs.static_pressure
+    turboprop_conditions.core_nozzle_area_ratio                          = core_nozzle_conditions.outputs.area_ratio 
+    turboprop_conditions.core_nozzle_static_pressure                     = core_nozzle_conditions.outputs.static_pressure
+    turboprop_conditions.core_nozzle_exit_velocity                       = core_nozzle_conditions.outputs.velocity  
 
-    #link the thrust component to the low pressure compressor 
-    turbojet.inputs.total_temperature_reference              = low_pressure_compressor.outputs.stagnation_temperature
-    turbojet.inputs.total_pressure_reference                 = low_pressure_compressor.outputs.stagnation_pressure 
-    turbojet.inputs.flow_through_core                        =  1.0 #scaled constant to turn on core thrust computation
-    turbojet.inputs.flow_through_fan                         =  0.0 #scaled constant to turn on fan thrust computation        
+    # Link the thrust component to the combustor
+    turboprop_conditions.fuel_to_air_ratio                        = combustor_conditions.outputs.fuel_to_air_ratio
 
-    #compute the thrust
-    compute_thrust(turbojet,conditions,throttle = turbojet_results.throttle )
+    # Link the thrust component to the low pressure compressor 
+    turboprop_conditions.total_temperature_reference              = lpc_conditions.outputs.stagnation_temperature
+    turboprop_conditions.total_pressure_reference                 = lpc_conditions.outputs.stagnation_pressure 
+    turboprop_conditions.bypass_ratio                             = bypass_ratio
+    turboprop_conditions.flow_through_core                        = 1./(1.+bypass_ratio) #scaled constant to turn on core thrust computation
+    turboprop_conditions.flow_through_fan                         = bypass_ratio/(1.+bypass_ratio) #scaled constant to turn on fan thrust computation        
 
-    # getting the network outputs from the thrust outputs  
-    turbojet_results.thrust          = turbojet.outputs.thrust
-    turbojet_results.power           = turbojet.outputs.power  
-    turbojet_results.fuel_flow_rate  = turbojet.outputs.fuel_flow_rate 
-    total_power                      += turbojet_results.power
-    total_thrust[:,0]                += turbojet_results.thrust[:,0]
+    # Compute the thrust
+    compute_thrust(turboprop,turboprop_conditions,conditions)
+
+    # Compute forces and moments
+    moment_vector      = 0*state.ones_row(3)
+    F                  = 0*state.ones_row(3)
+    F[:,0]             =  turboprop_conditions.thrust[:,0]
+    moment_vector[:,0] =  turboprop.origin[0][0] -   center_of_gravity[0][0] 
+    moment_vector[:,1] =  turboprop.origin[0][1]  -  center_of_gravity[0][1] 
+    moment_vector[:,2] =  turboprop.origin[0][2]  -  center_of_gravity[0][2]
+    M                  =  np.cross(moment_vector, F)   
+    moment             = M 
+    power              = turboprop_conditions.power
+    thrust             = F
 
     # store data
     core_nozzle_res = Data(
-                exit_static_temperature             = core_nozzle.outputs.static_temperature,
-                exit_static_pressure                = core_nozzle.outputs.static_pressure,
-                exit_stagnation_temperature         = core_nozzle.outputs.stagnation_temperature,
-                exit_stagnation_pressure            = core_nozzle.outputs.static_pressure,
-                exit_velocity                       = core_nozzle.outputs.velocity
-            ) 
+                exit_static_temperature             = core_nozzle_conditions.outputs.static_temperature,
+                exit_static_pressure                = core_nozzle_conditions.outputs.static_pressure,
+                exit_stagnation_temperature         = core_nozzle_conditions.outputs.stagnation_temperature,
+                exit_stagnation_pressure            = core_nozzle_conditions.outputs.static_pressure,
+                exit_velocity                       = core_nozzle_conditions.outputs.velocity
+            )
 
-    noise_results.turbojet.fan_nozzle    = None 
-    noise_results.turbojet.core_nozzle   = core_nozzle_res
-    noise_results.turbojet.fan           = None   
-    stored_results_flag                  = True
-    stored_propulsor_tag                 = turbojet.tag
+    fan_nozzle_res = Data(
+                exit_static_temperature             = fan_nozzle_conditions.outputs.static_temperature,
+                exit_static_pressure                = fan_nozzle_conditions.outputs.static_pressure,
+                exit_stagnation_temperature         = fan_nozzle_conditions.outputs.stagnation_temperature,
+                exit_stagnation_pressure            = fan_nozzle_conditions.outputs.static_pressure,
+                exit_velocity                       = fan_nozzle_conditions.outputs.velocity
+            )
+
+    noise_conditions.turboprop.fan_nozzle    = fan_nozzle_res
+    noise_conditions.turboprop.core_nozzle   = core_nozzle_res  
+    noise_conditions.turboprop.fan           = None
+    stored_results_flag                     = True
+    stored_propulsor_tag                    = turboprop.tag 
     
-    return total_thrust,total_power ,stored_results_flag,stored_propulsor_tag
-
-def reuse_stored_data(conditions,fuel_line,turbojet,stored_propulsor_tag,total_thrust,total_power):
-    '''Reuses results from one turbojet for identical propulsors
+    return thrust,moment,power,stored_results_flag,stored_propulsor_tag 
+    
+def reuse_stored_turboprop_data(turboprop,state,fuel_line,stored_propulsor_tag,center_of_gravity= [[0.0, 0.0,0.0]]):
+    '''Reuses results from one turboprop for identical turboprops
     
     Assumptions: 
     N/A
@@ -237,30 +235,34 @@ def reuse_stored_data(conditions,fuel_line,turbojet,stored_propulsor_tag,total_t
     N/A
 
     Inputs:  
-    conditions           - operating conditions data structure   [-]  
-    fuel_line            - fuelline                              [-] 
-    turbojet            - turbojet data structure                [-] 
-    total_thrust         - thrust of turbojet group              [N]
-    total_power          - power of turbojet group               [W] 
+    turboprop             - turboprop data structure                [-]
+    state                - operating conditions data structure   [-]  
+    fuel_line            - fuelline                              [-]  
+    total_thrust         - thrust of turboprop group              [N]
+    total_power          - power of turboprop group               [W] 
 
     Outputs:  
-    total_thrust         - thrust of turbojet group              [N]
-    total_power          - power of turbojet group               [W] 
+    total_thrust         - thrust of turboprop group              [N]
+    total_power          - power of turboprop group               [W] 
     
     Properties Used: 
     N.A.        
     ''' 
-    turbojet_results_0                   = conditions.energy[fuel_line.tag][stored_propulsor_tag]
-    noise_results_0                      = conditions.noise[fuel_line.tag][stored_propulsor_tag] 
-    turbojet_results                     = conditions.energy[fuel_line.tag][turbojet.tag]  
-    noise_results                        = conditions.noise[fuel_line.tag][turbojet.tag]
-    turbojet_results.throttle            = turbojet_results_0.throttle
-    turbojet_results.thrust              = turbojet_results_0.thrust 
-    turbojet_results.power               = turbojet_results_0.power   
-    noise_results.turbojet.fan_nozzle    = None  
-    noise_results.turbojet.core_nozzle   = noise_results_0.turbojet.core_nozzle 
-    noise_results.turbojet.fan           = None   
-    total_power                          += turbojet_results.power
-    total_thrust[:,0]                    += turbojet_results.thrust[:,0]
+    conditions                                      = state.conditions  
+    conditions.energy[fuel_line.tag][turboprop.tag]  = deepcopy(conditions.energy[fuel_line.tag][stored_propulsor_tag])
+    conditions.noise[fuel_line.tag][turboprop.tag]   = deepcopy(conditions.noise[fuel_line.tag][stored_propulsor_tag])
+    
+    # compute moment  
+    moment_vector      = 0*state.ones_row(3)
+    F                  = 0*state.ones_row(3)
+    F[:,0]             = conditions.energy[fuel_line.tag][turboprop.tag].thrust[:,0] 
+    moment_vector[:,0] = turboprop.origin[0][0] -   center_of_gravity[0][0] 
+    moment_vector[:,1] = turboprop.origin[0][1]  -  center_of_gravity[0][1] 
+    moment_vector[:,2] = turboprop.origin[0][2]  -  center_of_gravity[0][2]
+    moment             = np.cross(moment_vector, F)           
+  
+    power                                   = conditions.energy[fuel_line.tag][turboprop.tag].power
+    thrust                                  = conditions.energy[fuel_line.tag][turboprop.tag].thrust 
+    conditions.energy[fuel_line.tag][turboprop.tag].moment =  moment 
  
-    return total_thrust,total_power
+    return thrust,moment,power    
