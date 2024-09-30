@@ -77,7 +77,7 @@ def compute_lfp_cell_performance(battery,state,bus,coolant_lines,t_idx, delta_t)
 
     # Bus Conditions
     bus_conditions     =  state.conditions.energy[bus.tag]
-    #bus_config         =  bus.battery_module_electric_configuration
+    bus_config         =  bus.battery_module_electric_configuration
 
     I_bus              = bus_conditions.current_draw
     P_bus              = bus_conditions.power_draw

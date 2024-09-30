@@ -360,7 +360,8 @@ def modify_crossflow_hex_size(nexus):
     hex_opt.stack_width                     = L_h
     hex_opt.stack_length                    = L_c
     hex_opt.heat_exchanger_mass             = mass_hex
-    hex_opt.power_draw                      = P_hex 
+    hex_opt.power_draw_air                  = P_air
+    hex_opt.power_draw_coolant              = P_coolant
     hex_opt.air_frontal_area                = A_f_c
     hex_opt.pressure_diff_air               = delta_p_c_updated
     hex_opt.heat_removed                   =  -C_h * (T_o_h - T_i_h)
@@ -412,11 +413,14 @@ def post_process(nexus):
     # -------------------------------------------------------
     # Objective 
     # -------------------------------------------------------   
-    power   = hex_opt.power_draw 
+    power_air     =  hex_opt.power_draw_air    
+    power_coolant =  hex_opt.power_draw_coolant * 10000
+    
+    #power   = hex_opt.power_draw 
     mass    = hex_opt.heat_exchanger_mass*1000
     
     
-    summary.mass_power_objective = (power**2 + mass**2)**(0.5)
+    summary.mass_power_objective = (power_coolant ** 2 + power_air**2 + mass**2)**(0.5)
     
 
     # -------------------------------------------------------

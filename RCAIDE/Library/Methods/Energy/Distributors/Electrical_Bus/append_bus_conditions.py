@@ -42,18 +42,5 @@ def append_bus_conditions(bus,segment):
     segment.state.conditions.energy[bus.tag].temperature           = 0 * ones_row(1)
     segment.state.conditions.energy[bus.tag].energy                = 0 * ones_row(1)
     segment.state.conditions.energy[bus.tag].regenerative_power    = 0 * ones_row(1)
-    
-    # TO BE INCLUDED IN NEAR FUTURE
-    #if bus.battery_module_electric_configuration is 'Series':
-        #bus.nominal_capacity = 0
-        #for battery_module in  bus.battery_modules:
-            #bus.voltage  +=   battery_module.voltages
-            #bus.nominal_capacity =  battery_module.nominal_capacity               
-        
-    #elif bus.battery_module_electric_configuration is 'Parallel':
-        #for battery_module in  bus.battery_modules:
-            #bus.voltage +=  battery_module.voltage
-            #bus.capacity =  battery_module.capacity        
-    #else: raise Exception("Define how the battery modules are connected on the bus")
    
     return    

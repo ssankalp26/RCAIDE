@@ -7,5 +7,6 @@
 # ----------------------------------------------------------------------------------------------------------------------
 #  IMPORT
 # ----------------------------------------------------------------------------------------------------------------------
-from .append_bus_conditions   import append_bus_conditions
-from .compute_bus_conditions  import compute_bus_conditions
+from .append_bus_conditions                import append_bus_conditions
+from .compute_bus_conditions               import compute_bus_conditions
+from .initialize_bus_electrical_properties import initialize_bus_electrical_properties

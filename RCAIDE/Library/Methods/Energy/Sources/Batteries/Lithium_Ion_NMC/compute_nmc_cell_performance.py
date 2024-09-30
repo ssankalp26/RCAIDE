@@ -80,7 +80,7 @@ def compute_nmc_cell_performance(battery,state,bus,coolant_lines,t_idx, delta_t)
     
     # Bus Conditions
     bus_conditions     =  state.conditions.energy[bus.tag]
-    #bus_config         =  bus.battery_module_electric_configuration
+    bus_config         =  bus.battery_module_electric_configuration
     
     I_bus              = bus_conditions.current_draw
     P_bus              = bus_conditions.power_draw
@@ -121,7 +121,7 @@ def compute_nmc_cell_performance(battery,state,bus,coolant_lines,t_idx, delta_t)
     # Compute battery electrical properties 
     # -------------------------------------------------------------------------    
     # Calculate the current going into one cell  
-    n_series          = battery.electrical_configuration.series  
+    n_series          = battery.electrical_configuration.series
     n_parallel        = battery.electrical_configuration.parallel 
     n_total           = battery.electrical_configuration.total
     no_modules        =  len(bus.battery_modules)
@@ -142,11 +142,11 @@ def compute_nmc_cell_performance(battery,state,bus,coolant_lines,t_idx, delta_t)
     # ---------------------------------------------------------------------------------------------------
     # Current State 
     # ---------------------------------------------------------------------------------------------------
-    #if bus_config is 'Series':
-        #I_module[t_idx]      = I_bus[t_idx]
-    #elif bus_config is  'Parallel':
-        #I_module[t_idx]      = I_bus[t_idx] / len(bus.battery_modules)
-    I_module[t_idx]      = I_bus[t_idx]    
+    if bus_config is 'Series':
+        I_module[t_idx]      = I_bus[t_idx]
+    elif bus_config is  'Parallel':
+        I_module[t_idx]      = I_bus[t_idx] / len(bus.battery_modules)
+
     I_cell[t_idx]        = I_module[t_idx] / n_parallel   
 
     # ---------------------------------------------------------------------------------

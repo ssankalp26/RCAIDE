@@ -9,9 +9,9 @@
 
 # RCAIDE imports  
 import RCAIDE 
-from RCAIDE.Library.Components                                import Component
-from RCAIDE.Library.Components.Component                      import Container
-from RCAIDE.Library.Methods.Energy.Distributors.Electrical_Bus import append_bus_conditions , compute_bus_conditions
+from RCAIDE.Library.Components                                 import Component
+from RCAIDE.Library.Components.Component                       import Container
+from RCAIDE.Library.Methods.Energy.Distributors.Electrical_Bus import *
 
 
 # ----------------------------------------------------------------------------------------------------------------------
@@ -50,6 +50,9 @@ class Electrical_Bus(Component):
         append_bus_conditions(self, segment)
         return
     
+    def initialize_bus_electrical_properties(self):
+        initialize_bus_electrical_properties(self)
+        return
     def compute_distributor_conditions(self,state):
         compute_bus_conditions(self, state)
         return    
