@@ -11,7 +11,7 @@ import numpy as np
 # ----------------------------------------------------------------------
 #  Methods
 # ----------------------------------------------------------------------
-def cross_flow_hex_rating_model(HEX,state,coolant_line, delta_t,t_idx):
+def cross_flow_hex_rating_model(HEX,state,bus,coolant_line, delta_t,t_idx):
     """ Computes the net heat removed by a cross flow heat exchanger and
         resultant coolant and air temperatures. 
           
@@ -309,5 +309,6 @@ def cross_flow_hex_rating_model(HEX,state,coolant_line, delta_t,t_idx):
     state.conditions.energy[coolant_line.tag][HEX.tag].coolant_inlet_pressure[t_idx+1]     = P_i_h
     state.conditions.energy[coolant_line.tag][HEX.tag].pressure_diff_air[t_idx+1]          = delta_p_c[iteraion_counter_1]
     state.conditions.energy[coolant_line.tag][HEX.tag].effectiveness_HEX[t_idx+1]          = eff_hex   
-   
+    state.conditions.energy[bus.tag].power_draw[t_idx+1]                                  += P_hex 
+    
     return  

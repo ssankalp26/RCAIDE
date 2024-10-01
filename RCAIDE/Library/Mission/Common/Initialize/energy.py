@@ -32,22 +32,23 @@ def energy(segment):
     # loop through battery modules in networks
     for network in segment.analyses.energy.vehicle.networks:  
         # if network has busses 
-        if 'busses' in network: 
+        if 'busses' in network:
             for bus in network.busses:
+                bus.append_segment_conditions(conditions, segment)
                 for battery_module in  bus.battery_modules:
                     battery_module.append_battery_segment_conditions(bus, conditions, segment)
-            for coolant_line in  network.coolant_lines:
-                for tag, item in  coolant_line.items(): 
-                    if tag == 'battery_modules':
-                        for battery in item:
-                            for btms in  battery:
-                                btms.append_segment_conditions(segment,coolant_line, conditions)
-                    if tag == 'heat_exchangers':
-                        for heat_exchanger in  item:
-                            heat_exchanger.append_segment_conditions(segment, coolant_line, conditions)
-                    if tag == 'reservoirs':
-                        for reservoir in  item:
-                            reservoir.append_segment_conditions(segment, coolant_line, conditions) 
+                for coolant_line in  network.coolant_lines:
+                    for tag, item in  coolant_line.items(): 
+                        if tag == 'battery_modules':
+                            for battery in item:
+                                for btms in  battery:
+                                    btms.append_segment_conditions(segment,coolant_line, conditions)
+                        if tag == 'heat_exchangers':
+                            for heat_exchanger in  item:
+                                heat_exchanger.append_segment_conditions(segment,bus,coolant_line, conditions)
+                        if tag == 'reservoirs':
+                            for reservoir in  item:
+                                reservoir.append_segment_conditions(segment, coolant_line, conditions) 
                     
          # if network has fuel lines                        
         elif 'fuel_lines' in network: 

@@ -151,7 +151,7 @@ class Electric(Network):
 
                     # append bus outputs to battery 
                     bus_conditions                    = state.conditions.energy[bus.tag]
-                    bus_conditions.power_draw         = ((avionics_power + payload_power + total_esc_power) - charging_power)/bus.efficiency
+                    bus_conditions.power_draw        += ((avionics_power + payload_power + total_esc_power) - charging_power)/bus.efficiency
                     bus_conditions.current_draw       = bus_conditions.power_draw/bus_voltage
 
 
@@ -179,7 +179,7 @@ class Electric(Network):
                         for tag, item in  coolant_line.items(): 
                             if tag == 'heat_exchangers':
                                 for heat_exchanger in  item:
-                                    heat_exchanger.compute_heat_exchanger_performance(state,coolant_line,delta_t[t_idx],t_idx)
+                                    heat_exchanger.compute_heat_exchanger_performance(state,bus,coolant_line,delta_t[t_idx],t_idx)
                             if tag == 'reservoirs':
                                 for reservoir in  item:
                                     reservoir.compute_reservior_coolant_temperature(state,coolant_line,delta_t[t_idx],t_idx)

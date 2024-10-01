@@ -125,12 +125,12 @@ class Cross_Flow_Heat_Exchanger(Component):
         append_cross_flow_heat_exchanger_conditions(self,segment,coolant_line,add_additional_network_equation)
         return
   
-    def append_segment_conditions(self,segment,coolant_line,conditions):
-        append_cross_flow_hex_segment_conditions(self,segment,coolant_line,conditions)
+    def append_segment_conditions(self,segment,bus,coolant_line,conditions):
+        append_cross_flow_hex_segment_conditions(self,segment,bus,coolant_line,conditions)
         return
        
-    def compute_heat_exchanger_performance(self,state,coolant_line, delta_t,t_idx):
-        cross_flow_hex_rating_model(self,state,coolant_line, delta_t,t_idx)
+    def compute_heat_exchanger_performance(self,state,bus,coolant_line, delta_t,t_idx):
+        cross_flow_hex_rating_model(self,state,bus,coolant_line, delta_t,t_idx)
         return
     def plot_operating_conditions(self,results, coolant_line,save_filename,save_figure,show_legend,file_type ,width, height):
         plot_cross_flow_heat_exchanger_conditions(self,results,coolant_line,save_filename,save_figure,show_legend,file_type,width,height)     

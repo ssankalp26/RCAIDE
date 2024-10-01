@@ -16,7 +16,7 @@ import numpy as np
 # ----------------------------------------------------------------------------------------------------------------------
 #  Wavy Channel Rating Model
 # ----------------------------------------------------------------------------------------------------------------------
-def  wavy_channel_rating_model(HAS,battery,coolant_line,Q_heat_gen,T_cell,state,delta_t,t_idx):
+def  wavy_channel_rating_model(HAS,battery,bus,coolant_line,Q_heat_gen,T_cell,state,delta_t,t_idx):
     """ Computes the net heat removed by a wavy channel heat acquisition system.
 
     Assumptions:
@@ -184,7 +184,8 @@ def  wavy_channel_rating_model(HAS,battery,coolant_line,Q_heat_gen,T_cell,state,
     state.conditions.energy[coolant_line.tag][HAS.tag].coolant_mass_flow_rate[t_idx+1]     = m_coolant
     state.conditions.energy[coolant_line.tag][HAS.tag].effectiveness[t_idx+1]              = heat_transfer_efficiency
     state.conditions.energy[coolant_line.tag][HAS.tag].power[t_idx+1]                      = Power
-
+    
+    state.conditions.energy[bus.tag].power_draw[t_idx+1]                                   += Power 
 
     # To be introduced when turndown ratio is a thing in the future. 
     #if turndown_ratio == 0:

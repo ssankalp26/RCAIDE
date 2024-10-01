@@ -42,7 +42,7 @@ class Avionics(Component):
         N/A
         """                 
         self.power_draw = 0.0
-        self.tag        = 'avionics'
+        self.tag        = 'Avionics'
 
     def append_operating_conditions(self,segment,bus): 
         append_avionics_conditions(self,segment,bus)
