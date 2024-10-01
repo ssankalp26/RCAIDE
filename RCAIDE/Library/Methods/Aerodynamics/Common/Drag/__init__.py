@@ -26,3 +26,4 @@ from .total_drag                                import total_drag
 from .drag_divergence                           import drag_divergence
 from .supersonic_wave_drag_volume_raymer        import supersonic_wave_drag_volume_raymer
 from .supersonic_wave_drag_volume_sears_haack   import supersonic_wave_drag_volume_sears_haack
+from .cooling_drag                              import cooling_drag

@@ -5,7 +5,8 @@
 # ----------------------------------------------------------------------
 #  Imports
 # ---------------------------------------------------------------------- 
-from RCAIDE.Framework.Core import Data 
+from RCAIDE.Framework.Core import Units
+from RCAIDE.Library.Methods.Aerodynamics.Common.Drag import cooling_drag
 import numpy as np  
 
 # ----------------------------------------------------------------------
@@ -275,16 +276,20 @@ def cross_flow_hex_rating_model(HEX,state,bus,coolant_line, delta_t,t_idx):
             iteraion_counter_1           += 1
     
     
+    
+    
+    state.conditions.energy[coolant_line.tag][HEX.tag].pressure_diff_air[t_idx+1]          = delta_p_c[iteraion_counter_1]
+    state.conditions.energy[coolant_line.tag][HEX.tag].air_mass_flow_rate[t_idx+1]         = m_dot_c  
     # Calculate Power drawn by HEX 
     P_coolant = ((m_dot_h*delta_p_h[iteraion_counter_1])/(HEX.pump.efficiency*rho_h_m))
     
-    #if fan_operation:  
-        #P_air    = ((m_dot_c*delta_p_c[iteraion_counter_1]/rho_c_m))/HEX.fan.efficiency
-    #else:
-        #P_air    = 0
+    if state.conditions.freestream.velocity[t_idx] > HEX.minimum_air_speed:
+        P_air    = 0
+        cooling_drag(state, HEX,coolant_line,t_idx,fan_operation=False)        
+    else:
+        P_air    = ((m_dot_c*delta_p_c[iteraion_counter_1]/rho_c_m))/HEX.fan.efficiency
+        cooling_drag(state, HEX,coolant_line,t_idx,fan_operation = True)        
         
-        
-    P_air    = ((m_dot_c*delta_p_c[iteraion_counter_1]/rho_c_m))/HEX.fan.efficiency
     P_hex     = P_air+P_coolant
     
     #if turndown_ratio == 0: 
@@ -307,7 +312,6 @@ def cross_flow_hex_rating_model(HEX,state,bus,coolant_line, delta_t,t_idx):
     state.conditions.energy[coolant_line.tag][HEX.tag].air_mass_flow_rate[t_idx+1]         = m_dot_c  
     state.conditions.energy[coolant_line.tag][HEX.tag].air_inlet_pressure[t_idx+1]         = P_i_c 
     state.conditions.energy[coolant_line.tag][HEX.tag].coolant_inlet_pressure[t_idx+1]     = P_i_h
-    state.conditions.energy[coolant_line.tag][HEX.tag].pressure_diff_air[t_idx+1]          = delta_p_c[iteraion_counter_1]
     state.conditions.energy[coolant_line.tag][HEX.tag].effectiveness_HEX[t_idx+1]          = eff_hex   
     state.conditions.energy[bus.tag].power_draw[t_idx+1]                                  += P_hex 
     

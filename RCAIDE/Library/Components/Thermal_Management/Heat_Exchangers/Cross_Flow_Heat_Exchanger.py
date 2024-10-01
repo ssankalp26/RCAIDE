@@ -6,7 +6,7 @@
 #  IMPORT
 # ----------------------------------------------------------------------------------------------------------------------
 # RCAIDE Imports
-from RCAIDE.Framework.Core                                                                import Data 
+from RCAIDE.Framework.Core                                                                import Data, Units 
 from RCAIDE.Library.Components                                                            import Component  
 from RCAIDE.Library.Attributes.Coolants.Glycol_Water                                      import Glycol_Water  
 from RCAIDE.Library.Attributes.Gases                                                      import Air
@@ -44,7 +44,8 @@ class Cross_Flow_Heat_Exchanger(Component):
         self.tag                                                    = 'cross_flow_heat_exchanger'
         self.coolant                                                = Glycol_Water() 
         self.air                                                    = Air() 
-        self.design_heat_removed                                    =  0.0
+        self.design_heat_removed                                    = 0.0
+        self.minimum_air_speed                                      = 108 * Units.knots 
         
         # heat exchanger: thermophysical properties                        
         self.heat_exchanger_efficiency                              = 0.8381
