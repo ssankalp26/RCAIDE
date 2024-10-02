@@ -1,3 +1,5 @@
+from setuptools import setup, find_packages
+
 # Define the setup function for pip installation
 setup(
     name="rcaide_sai",  # This is the name used when doing `pip install rcaide_sai`
