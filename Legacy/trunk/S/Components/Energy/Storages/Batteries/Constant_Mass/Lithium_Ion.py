@@ -16,7 +16,7 @@ from Legacy.trunk.S.Components.Energy.Storages.Batteries  import Battery
 
 # package imports
 import numpy as np 
-from scipy.integrate import  cumtrapz
+from scipy.integrate import  cumulative_trapezoid
 
 # ----------------------------------------------------------------------
 #  Lithium_Ion
@@ -211,7 +211,7 @@ class Lithium_Ion(Battery):
         DOD_new = 1 - SOC_new
           
         # Determine new charge throughput (the amount of charge gone through the battery)
-        Q_total    = np.atleast_2d(np.hstack(( Q_prior[0] , Q_prior[0] + cumtrapz(abs(I_bat)[:,0], x   = numerics.time.control_points[:,0])/Units.hr ))).T      
+        Q_total    = np.atleast_2d(np.hstack(( Q_prior[0] , Q_prior[0] + cumulative_trapezoid(abs(I_bat)[:,0], x   = numerics.time.control_points[:,0])/Units.hr ))).T      
                 
         # A voltage model from Chen, M. and Rincon-Mora, G. A., "Accurate Electrical Battery Model Capable of Predicting
         # Runtime and I - V Performance" IEEE Transactions on Energy Conversion, Vol. 21, No. 2, June 2006, pp. 504-511

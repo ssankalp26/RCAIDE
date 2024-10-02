@@ -15,7 +15,7 @@ from Legacy.trunk.S.Methods.Power.Battery.compute_net_generated_battery_heat    
 
 import numpy as np
 import os
-from scipy.integrate    import  cumtrapz
+from scipy.integrate    import  cumulative_trapezoid
 from scipy.interpolate  import RegularGridInterpolator 
 
 ## @ingroup Components-Energy-Storages-Batteries-Constant_Mass
@@ -261,7 +261,7 @@ class Lithium_Ion_LiNiMnCoO2_18650(Lithium_Ion):
         DOD_new = 1 - SOC_new 
         
         # Determine new charge throughput (the amount of charge gone through the battery)
-        Q_total    = np.atleast_2d(np.hstack(( Q_prior[0] , Q_prior[0] + cumtrapz(I_cell[:,0], x = numerics.time.control_points[:,0])/Units.hr ))).T   
+        Q_total    = np.atleast_2d(np.hstack(( Q_prior[0] , Q_prior[0] + cumulative_trapezoid(I_cell[:,0], x = numerics.time.control_points[:,0])/Units.hr ))).T   
         
         # If SOC is negative, voltage under load goes to zero 
         V_ul[SOC_new < 0.] = 0.

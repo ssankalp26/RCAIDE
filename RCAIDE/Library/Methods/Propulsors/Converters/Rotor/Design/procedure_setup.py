@@ -88,7 +88,7 @@ def modify_blade_geometry(nexus):
     beta    = updated_blade_geometry(rotor_hover.radius_distribution/rotor_hover.tip_radius ,rotor_hover.twist_r,rotor_hover.twist_p,rotor_hover.twist_q,rotor_hover.twist_t)   
     
     # compute max thickness distribution   
-    blade_area    = sp.integrate.cumtrapz(B*c, r-r[0])
+    blade_area    = sp.integrate.cumulative_trapezoid(B*c, r-r[0])
     sigma         = blade_area[-1]/(np.pi*R**2)      
     t_max         = np.zeros(len(c))    
     t_c           = np.zeros(len(c))       
