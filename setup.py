@@ -3,7 +3,7 @@ from setuptools import setup, find_packages
 # Define the setup function for pip installation
 setup(
     name="rcaide_sai",  # This is the name used when doing `pip install rcaide_sai`
-    version="1.0.0",  # Specify the version directly
+    version="1.0.1",  # Specify the version directly
     description="RCAIDE: Research Community Aerospace Interdisciplinary Design Environment",
     long_description="RCAIDE: Research Community Aerospace Interdisciplinary Design Environment",  # Short description here
     author="RCAIDE Trust",
