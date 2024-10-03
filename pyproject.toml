@@ -34,13 +34,6 @@ dependencies = [
 [tool.setuptools.packages.find]
 include = ["rcaide-sai", "rcaide-sai.*"]
 
-[project.urls]
-Homepage = ""
-Documentation = ""
-Repository = ""
-Releases = ""
-Changelog = ""
-
 [tool.pytest.ini_options]
 addopts = "--showlocals -v -n auto"
 
