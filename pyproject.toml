@@ -3,7 +3,7 @@ requires = ["setuptools>=64"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "rcaide-sai"
+name = "rcaide_sai"  # If you want to keep 'RCAIDE' as the module name for imports
 version = "24.0.3"
 authors = [
   {name = "LEADS Research Group"},
@@ -11,7 +11,7 @@ authors = [
 maintainers = [
   {name = "LEADS Research Group"},
 ]
-description = ""
+description = "RCAIDE Scientific/Engineering tools"
 readme = {file = "README.md", content-type = "text/markdown"}
 license = { file = "LICENSE" }
 classifiers = [
@@ -53,8 +53,9 @@ dependencies = [
   "zipp==3.20.2",
   "build==1.2.2"
 ]
+
 [tool.setuptools.packages.find]
-include = ["rcaide-sai", "rcaide-sai.*"]
+include = ["RCAIDE", "RCAIDE.*"]  # Use the top-level package name as 'RCAIDE'
 
 [tool.pytest.ini_options]
 addopts = "--showlocals -v -n auto"
