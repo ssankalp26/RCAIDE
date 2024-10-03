@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "rcaide-sai"
-version = "24.0.1"
+version = "24.0.2"
 authors = [
   {name = "LEADS Research Group"},
 ]
