@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "rcaide_sai"  # If you want to keep 'RCAIDE' as the module name for imports
-version = "24.0.3"
+version = "24.0.4"
 authors = [
   {name = "LEADS Research Group"},
 ]
